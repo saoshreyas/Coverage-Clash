@@ -444,4 +444,17 @@ def get_budget_color(value):
     else:
         return SUCCESS_COLOR
 
-
+CARD_IMAGES=\
+    {("r",0): "Cap Premiums.jpg",
+     ("r",1): "Expand Public Coverage.jpg",
+     ("r",2): "Invest in Clinics.jpg",
+     ("r",3): "Mandate Coverage.jpg",
+     ("r",4): "Request Funds.jpg",
+     ("r",5): "Subsidize Coverage.jpg",
+     ("p",0): "Bribe Policymakers.jpg",
+     ("p",1): "Lobby Government.jpg",
+     ("p",2): "Misinformation.jpg",
+     ("p",3): "Narrow Networik.jpg",
+     ("p",4): "Raise Premiums.jpg",
+     ("p",5): "Risk Selection.jpg"\
+    }
