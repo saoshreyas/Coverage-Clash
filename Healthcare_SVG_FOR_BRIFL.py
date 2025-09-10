@@ -335,7 +335,7 @@ def draw_progress_bars(dwg, s, x, y):
                         font_size=SMALL_FS,
                         fill="rgb(51, 51, 51)"))
         
-        y_offset += 35
+        y_offset += 40
 
 def draw_special_status(dwg, s, x, y):
     """Draw special status messages"""
@@ -443,4 +443,5 @@ def get_budget_color(value):
         return "rgb(255, 193, 7)"
     else:
         return SUCCESS_COLOR
+
 
