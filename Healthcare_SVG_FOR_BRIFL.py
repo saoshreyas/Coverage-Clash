@@ -4,7 +4,7 @@
 # Based on OCCLUEdo_SVG_VIS_FOR_BRIFL.py structure
 
 import svgwrite
-import Healthcare1 as prob  # Import the main game module
+import Healthcare as prob  # Import the main game module
 
 DEBUG = True
 W = 1000  # Width of visualization region
@@ -443,3 +443,4 @@ def get_budget_color(value):
         return "rgb(255, 193, 7)"
     else:
         return SUCCESS_COLOR
+
