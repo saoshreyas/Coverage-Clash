@@ -49,14 +49,15 @@ class State(Basic_State):
             self.access_gap_index = 30  # lower is better for policymaker
             self.profit = 65  # insurer profit in billions
             self.public_trust_meter = 50  # policymaker trust percentage
-            self.influence_meter = 70  # insurer influence percentage
+            self.influence_meter = 75  # insurer influence percentage
             self.budget = 50  # policymaker budget in billions
             self.premium_cap_turns_left = 0  # turns left where insurer can't raise premiums
             self.skip_next_turn = False  # for lobbying effects
             self.win = "" # String that describes a win, if any.
             self.winner = -1 # Integer giving role number of winner.
+            self.bribe_choice_active = False # Flag to activate bribe options
+            self.public_expansion_cap_turns_left = 0 # New variable for bribery effect
             # The initial state is now ready.
-            self.last_lobbied = 0
         else:
             # Here we handle the case where an old state was passed in;
             # we'll make the new state be a deep copy of the old, and
@@ -76,7 +77,8 @@ class State(Basic_State):
             self.skip_next_turn = old.skip_next_turn
             self.win = old.win
             self.winner = old.winner
-            self.last_lobbied = old.last_lobbied
+            self.bribe_choice_active = old.bribe_choice_active
+            self.public_expansion_cap_turns_left = old.public_expansion_cap_turns_left
 
     def __str__(self):
         # Produces a simple textual description of a state.
@@ -90,7 +92,8 @@ class State(Basic_State):
                 f"Public Trust (Policymaker): {self.public_trust_meter}%\n"
                 f"Influence (Insurer): {self.influence_meter}%\n"
                 f"Policymaker Budget: ${self.budget} billion\n"
-                f"Premium Cap Turns Left: {self.premium_cap_turns_left}\n")
+                f"Premium Cap Turns Left: {self.premium_cap_turns_left}\n"
+                f"Public Expansion Cap Turns Left: {self.public_expansion_cap_turns_left}\n")
 
     def __eq__(self, s):
         return self.__str__() == s.__str__()
@@ -196,7 +199,7 @@ def update_turn(news):
   news.current_role = NAMES[updated]
   
   # Decrement premium cap counter
-  if news.premium_cap_turns_left > 0 and news.whose_turn == POLICY_MAKER:
+  if news.premium_cap_turns_left > 0:
     news.premium_cap_turns_left -= 1
   # No need to return anything. New state has been mutated.
 
@@ -242,13 +245,17 @@ def subsidize_coverage(s):
 
 def request_funds(s):
     new_s = State(s)
-    # 50% chance of bribery interception
+    add_to_next_transition(int_to_name(s.whose_turn)+" requests funds from the government.", new_s)
+    
+    # 50% chance of being intercepted by the insurer
     if random.random() < 0.5:
-        new_s.budget = clamp(s.budget + 8, 0, 200)
-        add_to_next_transition(int_to_name(s.whose_turn)+" requests funds successfully.", new_s)
+        add_to_next_transition("Funds are intercepted! The Insurance Company can now choose to act.", new_s)
+        new_s.bribe_choice_active = True
+        new_s.budget = clamp(s.budget + 8, 0, 200) # Funds are still added
     else:
-        new_s.budget = clamp(s.budget + 8, 0, 200)  # Funds still added but insurer gets benefit
-        add_to_next_transition(int_to_name(s.whose_turn)+" requests funds, but insurer intercepts and blocks future coverage expansion!", new_s)
+        add_to_next_transition("Request succeeds!", new_s)
+        new_s.budget = clamp(s.budget + 8, 0, 200)
+        
     update_turn(new_s)
     return new_s
 
@@ -296,7 +303,6 @@ def raise_premiums(s):
     new_s.uninsured_rate = clamp(s.uninsured_rate + 0.8, 0, 100)
     new_s.public_health_index = clamp(s.public_health_index - 2, 0, 100)
     new_s.influence_meter = clamp(s.influence_meter - 2, 0, 100)  # Public backlash
-    new_s.last_lobbied += 1
     update_turn(new_s)
     return new_s
 
@@ -308,7 +314,6 @@ def risk_selection(s):
     new_s.uninsured_rate = clamp(s.uninsured_rate + 0.6, 0, 100)
     new_s.profit = clamp(s.profit + 5, 0, 200)
     new_s.public_health_index = clamp(s.public_health_index - 4, 0, 100)
-    new_s.last_lobbied += 1
     update_turn(new_s)
     return new_s
 
@@ -320,7 +325,6 @@ def narrow_provider_network(s):
     new_s.uninsured_rate = clamp(s.uninsured_rate + 0.8, 0, 100)
     new_s.profit = clamp(s.profit + 3, 0, 200)
     new_s.public_health_index = clamp(s.public_health_index - 4, 0, 100)
-    new_s.last_lobbied += 1
     update_turn(new_s)
     return new_s
 
@@ -328,12 +332,11 @@ def lobby_government(s):
     new_s = State(s)
     add_to_next_transition(int_to_name(s.whose_turn)+" lobbies government, causing policymaker to lose a turn.", new_s)
     new_s.access_gap_index = clamp(s.access_gap_index + 3, 0, 100)
+    new_s.influence_meter = clamp(s.influence_meter + 5, 0, 100)
     new_s.uninsured_rate = clamp(s.uninsured_rate + 0.6, 0, 100)
     new_s.public_health_index = clamp(s.public_health_index - 4, 0, 100)
-    new_s.influence_meter = clamp(s.influence_meter - 5, 0, 100)
     # Skip policymaker's next turn
     new_s.skip_next_turn = True
-    new_s.last_lobbied = 0
     update_turn(new_s)
     return new_s
 
@@ -345,28 +348,35 @@ def misinformation_campaigns(s):
     new_s.uninsured_rate = clamp(s.uninsured_rate + 0.3, 0, 100)
     new_s.profit = clamp(s.profit - 3, 0, 200)  # Campaigns cost money
     new_s.public_trust_meter = clamp(s.public_trust_meter - 5, 0, 100)  # Reduce policymaker trust
-    new_s.last_lobbied += 1
     update_turn(new_s)
     return new_s
 
-def bribe_policymakers(s):
+def prevent_expansion(s):
     new_s = State(s)
-    add_to_next_transition(int_to_name(s.whose_turn)+" bribes policymakers.", new_s)
-    new_s.profit = clamp(s.profit - 8, 0, 200)  # Bribes are expensive
-    new_s.budget = clamp(s.budget + 5, 0, 200)  # Some money goes to policymaker
-    new_s.influence_meter = clamp(s.influence_meter + 8, 0, 100)
-    new_s.public_trust_meter = clamp(s.public_trust_meter - 8, 0, 100)  # If discovered
-    new_s.last_lobbied += 1
+    add_to_next_transition(int_to_name(s.whose_turn)+" uses intercepted funds to prevent public coverage expansion for 3 turns.", new_s)
+    new_s.public_expansion_cap_turns_left = 3
+    new_s.bribe_choice_active = False # Reset the flag
+    new_s.profit = clamp(s.profit - 5, 0, 200) # Cost of the action
+    update_turn(new_s)
+    return new_s
+
+def fund_misinformation_with_bribe(s):
+    new_s = State(s)
+    add_to_next_transition(int_to_name(s.whose_turn)+" uses intercepted funds to launch a misinformation campaign.", new_s)
+    new_s.public_trust_meter = clamp(s.public_trust_meter - 5, 0, 100)
+    new_s.influence_meter = clamp(s.influence_meter + 3, 0, 100)
+    new_s.bribe_choice_active = False # Reset the flag
     update_turn(new_s)
     return new_s
 
 #------------------
 # Precondition functions
 def can_expand_coverage(s):
-    return s.whose_turn == POLICY_MAKER and s.budget >= 20
+    return s.whose_turn == POLICY_MAKER and s.budget >= 20 \
+    and s.public_expansion_cap_turns_left <= 0
 
 def can_subsidize(s):
-    return s.whose_turn == POLICY_MAKER and s.budget >= 14
+    return s.whose_turn == POLICY_MAKER and s.budget >= 14 
 
 def can_request_funds(s):
     return s.whose_turn == POLICY_MAKER
@@ -390,56 +400,64 @@ def can_narrow_network(s):
     return s.whose_turn == INSURANCE_COMPANY
 
 def can_lobby(s):
-    return s.whose_turn == INSURANCE_COMPANY and s.influence_meter == 80 and s.last_lobbied >= 3
+    return s.whose_turn == INSURANCE_COMPANY
 
 def can_misinformation(s):
     return s.whose_turn == INSURANCE_COMPANY and s.profit >= 3
 
-def can_bribe(s):
-    return s.whose_turn == INSURANCE_COMPANY and s.profit >= 8
+def can_bribe_prevent_expansion(s):
+    return s.whose_turn == INSURANCE_COMPANY and s.bribe_choice_active
+
+def can_bribe_fund_misinformation(s):
+    return s.whose_turn == INSURANCE_COMPANY and s.bribe_choice_active
 
 #------------------
 #<OPERATORS>
 # Policy Maker operators - following Tic-Tac-Toe pattern
 POLICY_MAKER_OPS = [Operator("Expand Public Coverage",\
-  lambda s: can_expand_coverage(s),
+  lambda s: s.whose_turn == POLICY_MAKER and s.budget >= 20 and s.public_expansion_cap_turns_left <= 0,
   lambda s: expand_public_coverage(s)),
   Operator("Subsidize Coverage",\
-  lambda s: can_subsidize(s),
+  lambda s: s.whose_turn == POLICY_MAKER and s.budget >= 14,
   lambda s: subsidize_coverage(s)),
   Operator("Request Funds",\
-  lambda s: can_request_funds(s),
+  lambda s: s.whose_turn == POLICY_MAKER,
   lambda s: request_funds(s)),
   Operator("Cap Premiums",\
-  lambda s: can_cap_premiums(s),
+  lambda s: s.whose_turn == POLICY_MAKER and s.budget >= 14,
   lambda s: cap_premiums(s)),
   Operator("Mandate Coverage",\
-  lambda s: can_mandate_coverage(s),
+  lambda s: s.whose_turn == POLICY_MAKER and s.budget >= 10,
   lambda s: mandate_coverage(s)),
   Operator("Invest in Clinics",\
-  lambda s: can_invest_clinics(s),
+  lambda s: s.whose_turn == POLICY_MAKER and s.budget >= 18,
   lambda s: invest_in_clinics(s))]
 
 # Insurance Company operators - following Tic-Tac-Toe pattern  
 INSURANCE_COMPANY_OPS = [Operator("Raise Premiums",\
-  lambda s: can_raise_premiums(s),
+  lambda s: s.whose_turn == INSURANCE_COMPANY and s.premium_cap_turns_left <= 0,
   lambda s: raise_premiums(s)),
   Operator("Risk Selection",\
-  lambda s: can_risk_select(s),
+  lambda s: s.whose_turn == INSURANCE_COMPANY,
   lambda s: risk_selection(s)),
   Operator("Narrow Provider Network",\
-  lambda s: can_narrow_network(s),
+  lambda s: s.whose_turn == INSURANCE_COMPANY,
   lambda s: narrow_provider_network(s)),
   Operator("Lobby Government",\
-  lambda s: can_lobby(s),
+  lambda s: s.whose_turn == INSURANCE_COMPANY,
   lambda s: lobby_government(s)),
   Operator("Misinformation Campaigns",\
-  lambda s: can_misinformation(s),
+  lambda s: s.whose_turn == INSURANCE_COMPANY and s.profit >= 3,
   lambda s: misinformation_campaigns(s)),
-  Operator("Bribe Policymakers",\
-  lambda s: can_bribe(s),
-  lambda s: bribe_policymakers(s))]
-
+  # bribe operators
+  Operator("Prevent Expansion (Bribe)",\
+  lambda s: s.bribe_choice_active,
+  lambda s: prevent_expansion(s)),
+  Operator("Fund Misinformation (Bribe)",\
+  lambda s: s.bribe_choice_active,
+  lambda s: fund_misinformation_with_bribe(s))]
+                         
+  
 OPERATORS = POLICY_MAKER_OPS + INSURANCE_COMPANY_OPS    # Operators for Insurance Companies
 
 #</OPERATORS>
@@ -452,18 +470,12 @@ def create_initial_state():
 #</INITIAL_STATE>
 
 #<ROLES>
-ROLES = [ {'name': 'Policy Maker', 'min': 1, 'max': 1},
-          {'name': 'Insurance Company', 'min': 1, 'max': 1},
-          {'name': 'Observer', 'min': 0, 'max': 25}]
+ROLES = ROLES_List([ {'name': 'Policy Maker', 'min': 1, 'max': 2},
+          {'name': 'Insurance Company', 'min': 1, 'max': 2},
+          {'name': 'Observer', 'min': 0, 'max': 25}])
+ROLES.min_num_of_roles_to_play = 2
+ROLES.max_num_of_roles_to_play = 25
 #</ROLES>
-
-'''
-#<STATE_VIS>
-BRIFL_SVG = False # No SVG visualization for this game
-render_state = None
-DEBUG_VIS=True # Web_SOLUZION5 should auto-launch browser tabs for all roles, and show initial state with no player logins.
-#</STATE_VIS>
-'''
 
 #<STATE_VIS>
 BRIFL_SVG = True
@@ -473,4 +485,3 @@ def use_BRIFL_SVG():
   from  Healthcare_SVG_FOR_BRIFL import render_state
 DEBUG_VIS = True
 #</STATE_VIS>
-
