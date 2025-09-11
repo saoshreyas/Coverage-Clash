@@ -402,22 +402,22 @@ def can_bribe(s):
 #<OPERATORS>
 # Policy Maker operators - following Tic-Tac-Toe pattern
 POLICY_MAKER_OPS = [Operator("Expand Public Coverage",\
-  lambda s: s.whose_turn == POLICY_MAKER and s.budget >= 20,
+  lambda s: can_expand_coverage(s),
   lambda s: expand_public_coverage(s)),
   Operator("Subsidize Coverage",\
-  lambda s: s.whose_turn == POLICY_MAKER and s.budget >= 14,
+  lambda s: can_subsidize(s),
   lambda s: subsidize_coverage(s)),
   Operator("Request Funds",\
-  lambda s: s.whose_turn == POLICY_MAKER,
+  lambda s: can_request_funds(s),
   lambda s: request_funds(s)),
   Operator("Cap Premiums",\
-  lambda s: s.whose_turn == POLICY_MAKER and s.budget >= 14,
+  lambda s: can_cap_premiums(s),
   lambda s: cap_premiums(s)),
   Operator("Mandate Coverage",\
-  lambda s: s.whose_turn == POLICY_MAKER and s.budget >= 10,
+  lambda s: can_mandate_coverage(s),
   lambda s: mandate_coverage(s)),
   Operator("Invest in Clinics",\
-  lambda s: s.whose_turn == POLICY_MAKER and s.budget >= 18,
+  lambda s: can_invest_clinics(s),
   lambda s: invest_in_clinics(s))]
 
 # Insurance Company operators - following Tic-Tac-Toe pattern  
@@ -425,19 +425,19 @@ INSURANCE_COMPANY_OPS = [Operator("Raise Premiums",\
   lambda s: can_raise_premiums(s),
   lambda s: raise_premiums(s)),
   Operator("Risk Selection",\
-  lambda s: s.whose_turn == INSURANCE_COMPANY,
+  lambda s: can_risk_select(s),
   lambda s: risk_selection(s)),
   Operator("Narrow Provider Network",\
-  lambda s: s.whose_turn == INSURANCE_COMPANY,
+  lambda s: can_narrow_network(s),
   lambda s: narrow_provider_network(s)),
   Operator("Lobby Government",\
   lambda s: can_lobby(s),
   lambda s: lobby_government(s)),
   Operator("Misinformation Campaigns",\
-  lambda s: s.whose_turn == INSURANCE_COMPANY and s.profit >= 3,
+  lambda s: can_misinformation(s),
   lambda s: misinformation_campaigns(s)),
   Operator("Bribe Policymakers",\
-  lambda s: s.whose_turn == INSURANCE_COMPANY and s.profit >= 8,
+  lambda s: can_bribe(s),
   lambda s: bribe_policymakers(s))]
 
 OPERATORS = POLICY_MAKER_OPS + INSURANCE_COMPANY_OPS    # Operators for Insurance Companies
