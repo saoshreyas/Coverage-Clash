@@ -452,8 +452,8 @@ def create_initial_state():
 #</INITIAL_STATE>
 
 #<ROLES>
-ROLES = [ {'name': 'Policy Maker', 'min': 1, 'max': 2},
-          {'name': 'Insurance Company', 'min': 1, 'max': 2},
+ROLES = [ {'name': 'Policy Maker', 'min': 1, 'max': 1},
+          {'name': 'Insurance Company', 'min': 1, 'max': 1},
           {'name': 'Observer', 'min': 0, 'max': 25}]
 #</ROLES>
 
