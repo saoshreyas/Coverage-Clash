@@ -196,7 +196,7 @@ def update_turn(news):
   news.current_role = NAMES[updated]
   
   # Decrement premium cap counter
-  if news.premium_cap_turns_left > 0:
+  if news.premium_cap_turns_left > 0 and news.whose_turn == POLICY_MAKER:
     news.premium_cap_turns_left -= 1
   # No need to return anything. New state has been mutated.
 
