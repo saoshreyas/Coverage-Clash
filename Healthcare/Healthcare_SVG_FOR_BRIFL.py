@@ -39,7 +39,7 @@ def render_state(s, roles=None):
     # Accessibility text
     alt_text = "Coverage Clash game state visualization for "
     
-    session = prob.get_session() if hasattr(prob, 'get_session') else None
+    session = prob.SESSION
     
     dwg = svgwrite.Drawing(filename="coverage_clash_vis.svg",
                           id="state_svg",
@@ -103,18 +103,10 @@ def render_state(s, roles=None):
         # Special status messages
         draw_special_status(dwg, s, 20, 500)
         
-        insert_card(dwg,("r",0),350,340)
-        insert_card(dwg,("r",1),500,340)
-        insert_card(dwg,("r",2),650,340)
-        insert_card(dwg,("r",3),400,450)
-        insert_card(dwg,("r",4),550,450)
-        insert_card(dwg,("r",5),700,450)
-        
-        """
-        this is a template for how it'll look rn.
-        once the different roles view starts working,
-        i'll figure out about substituting in different roles' different operator cards.
-        """
+        if role == prob.POLICY_MAKER:
+            r_insert(dwg)
+        elif role == prob.INSURANCE_COMPANY:
+            i_insert(dwg)
         
         # Win/lose status
         if s.win:
@@ -128,22 +120,22 @@ def draw_metrics_panel(dwg, s, x, y):
     """Draw the main game metrics panel"""
     panel_width = 300
     panel_height = 250
-    
+
     # Panel background
     dwg.add(dwg.rect(insert=(x, y),
-                    size=(panel_width, panel_height),
-                    fill="white",
-                    stroke="rgb(200, 200, 200)",
-                    stroke_width="1",
-                    rx="5"))
-    
+        size=(panel_width, panel_height),
+        fill="white",
+        stroke="rgb(200, 200, 200)",
+        stroke_width="1",
+        rx="5"))
+
     # Panel title
     dwg.add(dwg.text("Game Metrics", insert=(x + panel_width//2, y + 20),
-                    text_anchor="middle",
-                    font_size=MEDIUM_FS,
-                    font_weight="bold",
-                    fill="rgb(51, 51, 51)"))
-    
+        text_anchor="middle",
+        font_size=MEDIUM_FS,
+        font_weight="bold",
+        fill="rgb(51, 51, 51)"))
+
     # Metrics list
     metrics = [
         ("Uninsured Rate", f"{s.uninsured_rate:.1f}%", get_health_color(s.uninsured_rate, 25, True)),
@@ -154,39 +146,103 @@ def draw_metrics_panel(dwg, s, x, y):
         ("Insurer Influence", f"{s.influence_meter}%", get_influence_color(s.influence_meter)),
         ("Policy Budget", f"${s.budget}B", get_budget_color(s.budget))
     ]
-    
+
     y_offset = 45
+
     for label, value, color in metrics:
         dwg.add(dwg.text(f"{label}:", insert=(x + 10, y + y_offset),
-                        font_size=SMALL_FS,
-                        fill="rgb(108, 117, 125)"))
+            font_size=SMALL_FS,
+            fill="rgb(108, 117, 125)"))
         dwg.add(dwg.text(value, insert=(x + panel_width - 10, y + y_offset),
-                        text_anchor="end",
-                        font_size=SMALL_FS,
-                        font_weight="bold",
-                        fill=color))
+            text_anchor="end",
+            font_size=SMALL_FS,
+            font_weight="bold",
+            fill=color))
         y_offset += 25
 
 def draw_goals_panel(dwg, s, role, x, y):
     """Draw the goals and win conditions panel"""
     panel_width = 300
     panel_height = 250
-    
+
     # Panel background
     dwg.add(dwg.rect(insert=(x, y),
-                    size=(panel_width, panel_height),
-                    fill="white",
-                    stroke="rgb(200, 200, 200)",
-                    stroke_width="1",
-                    rx="5"))
-    
+        size=(panel_width, panel_height),
+        fill="white",
+        stroke="rgb(200, 200, 200)",
+        stroke_width="1",
+        rx="5"))
+
     # Panel title
     role_name = prob.int_to_name(role)
     dwg.add(dwg.text(f"{role_name} Goals", insert=(x + panel_width//2, y + 20),
-                    text_anchor="middle",
-                    font_size=MEDIUM_FS,
-                    font_weight="bold",
-                    fill=ROLE_COLORS[role]))
+        text_anchor="middle",
+        font_size=MEDIUM_FS,
+        font_weight="bold",
+        fill=ROLE_COLORS[role]))
+
+    y_offset = 45
+
+    if role == prob.POLICY_MAKER:
+        goals = [
+            ("WIN CONDITION:", ""),
+            ("Access Gap < 15", f"(currently {s.access_gap_index})", SUCCESS_COLOR if s.access_gap_index < 15 else WARNING_COLOR),
+            ("", ""),
+            ("AVOID LOSING:", ""),
+            ("Uninsured > 25%", f"(currently {s.uninsured_rate:.1f}%)", WARNING_COLOR if s.uninsured_rate > 20 else SUCCESS_COLOR),
+            ("Public Health < 30", f"(currently {s.public_health_index})", WARNING_COLOR if s.public_health_index < 40 else SUCCESS_COLOR),
+            ("Budget = 0", f"(currently ${s.budget}B)", WARNING_COLOR if s.budget < 15 else SUCCESS_COLOR)
+        ]
+    elif role == prob.INSURANCE_COMPANY:
+        goals = [
+            ("WIN CONDITION:", ""),
+            ("Profit > $85B", f"(currently ${s.profit}B)", SUCCESS_COLOR if s.profit > 85 else WARNING_COLOR),
+            ("", ""),
+            ("AVOID LOSING:", ""),
+            ("Uninsured > 25%", f"(currently {s.uninsured_rate:.1f}%)", WARNING_COLOR if s.uninsured_rate > 20 else SUCCESS_COLOR),
+            ("Public Health < 30", f"(currently {s.public_health_index})", WARNING_COLOR if s.public_health_index < 40 else SUCCESS_COLOR)
+        ]
+    else:
+        goals = [("Observer", "No specific goals", "rgb(108, 117, 125)")]
+
+    for goal_item in goals:
+        if len(goal_item) == 3:
+            label, value, color = goal_item
+        else:
+            label, value, color = goal_item[0], goal_item[1], "rgb(51, 51, 51)"
+        if label == "":
+            y_offset += 10
+            continue
+        dwg.add(dwg.text(label, insert=(x + 10, y + y_offset),
+            font_size=SMALL_FS,
+            fill="rgb(51, 51, 51)" if color == "" else color,
+            font_weight="bold" if "CONDITION" in label or "LOSING" in label else "normal"))
+        if value:
+            dwg.add(dwg.text(value, insert=(x + panel_width - 10, y + y_offset),
+                text_anchor="end",
+                font_size=SMALL_FS,
+                fill=color))
+        y_offset += 20
+
+def draw_status_panel(dwg, s, x, y):
+    """Draw current status and special conditions panel"""
+    panel_width = 300
+    panel_height = 250
+
+    # Panel background
+    dwg.add(dwg.rect(insert=(x, y),
+        size=(panel_width, panel_height),
+        fill="white",
+        stroke="rgb(200, 200, 200)",
+        stroke_width="1",
+        rx="5"))
+
+      # Panel title
+    dwg.add(dwg.text("Current Status", insert=(x + panel_width//2, y + 20),
+        text_anchor="middle",
+        font_size=MEDIUM_FS,
+        font_weight="bold",
+        fill="rgb(51, 51, 51)"))
     
     y_offset = 45
     
@@ -467,7 +523,7 @@ CARD_IMAGES=\
      ("i",0): "Bribe Policymakers.jpg",
      ("i",1): "Lobby Government.jpg",
      ("i",2): "Misinformation.jpg",
-     ("i",3): "Narrow Networik.jpg",
+     ("i",3): "Narrow Network.jpg",
      ("i",4): "Raise Premiums.jpg",
      ("i",5): "Risk Selection.jpg"\
     }
@@ -492,22 +548,21 @@ def insert_card(dwg, card, x, y):
     image = dwg.image(url, insert=(x, y), size=(w, h))
     dwg.add(image)
 
-"""
-def r_insert():
+
+def r_insert(dwg):
     insert_card(dwg,("r",0),350,340)
     insert_card(dwg,("r",1),500,340)
     insert_card(dwg,("r",2),650,340)
     insert_card(dwg,("r",3),400,450)
     insert_card(dwg,("r",4),550,450)
     insert_card(dwg,("r",5),700,450)
-"""
 
-"""
-def i_insert():
+
+def i_insert(dwg):
     insert_card(dwg,("i",0),350,340)
     insert_card(dwg,("i",1),500,340)
     insert_card(dwg,("i",2),650,340)
     insert_card(dwg,("i",3),400,450)
     insert_card(dwg,("i",4),550,450)
     insert_card(dwg,("i",5),700,450)
-"""
+

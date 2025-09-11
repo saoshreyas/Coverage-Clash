@@ -444,11 +444,9 @@ def create_initial_state():
 #</INITIAL_STATE>
 
 #<ROLES>
-ROLES = ROLES_List([ {'name': 'Policy Maker', 'min': 1, 'max': 2},
+ROLES = [ {'name': 'Policy Maker', 'min': 1, 'max': 2},
           {'name': 'Insurance Company', 'min': 1, 'max': 2},
-          {'name': 'Observer', 'min': 0, 'max': 25}])
-ROLES.min_num_of_roles_to_play = 2
-ROLES.max_num_of_roles_to_play = 25
+          {'name': 'Observer', 'min': 0, 'max': 25}]
 #</ROLES>
 
 '''
