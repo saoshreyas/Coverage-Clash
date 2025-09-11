@@ -422,7 +422,7 @@ POLICY_MAKER_OPS = [Operator("Expand Public Coverage",\
 
 # Insurance Company operators - following Tic-Tac-Toe pattern  
 INSURANCE_COMPANY_OPS = [Operator("Raise Premiums",\
-  lambda s: s.whose_turn == INSURANCE_COMPANY and s.premium_cap_turns_left <= 0,
+  lambda s: can_raise_premiums(s),
   lambda s: raise_premiums(s)),
   Operator("Risk Selection",\
   lambda s: s.whose_turn == INSURANCE_COMPANY,
