@@ -103,7 +103,7 @@ def render_state(s, roles=None):
         # Special status messages
         draw_special_status(dwg, s, 20, 500)
         
-        insert_card(dwg,("i",2),300,400)
+        insert_card(dwg,("i",2),350,340)
         
         # Win/lose status
         if s.win:
@@ -461,8 +461,8 @@ CARD_IMAGES=\
      ("i",5): "Risk Selection.jpg"\
     }
 
-IMAGE_WIDTH = 200
-IMAGE_HEIGHT = 350
+IMAGE_WIDTH = 360
+IMAGE_HEIGHT = 400
 
 def insert_card(dwg, card, x, y):
     global session
