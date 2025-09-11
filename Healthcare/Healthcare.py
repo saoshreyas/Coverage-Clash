@@ -49,13 +49,14 @@ class State(Basic_State):
             self.access_gap_index = 30  # lower is better for policymaker
             self.profit = 65  # insurer profit in billions
             self.public_trust_meter = 50  # policymaker trust percentage
-            self.influence_meter = 75  # insurer influence percentage
+            self.influence_meter = 70  # insurer influence percentage
             self.budget = 50  # policymaker budget in billions
             self.premium_cap_turns_left = 0  # turns left where insurer can't raise premiums
             self.skip_next_turn = False  # for lobbying effects
             self.win = "" # String that describes a win, if any.
             self.winner = -1 # Integer giving role number of winner.
             # The initial state is now ready.
+            self.last_lobbied = 0
         else:
             # Here we handle the case where an old state was passed in;
             # we'll make the new state be a deep copy of the old, and
@@ -75,6 +76,7 @@ class State(Basic_State):
             self.skip_next_turn = old.skip_next_turn
             self.win = old.win
             self.winner = old.winner
+            self.last_lobbied = old.last_lobbied
 
     def __str__(self):
         # Produces a simple textual description of a state.
@@ -294,6 +296,7 @@ def raise_premiums(s):
     new_s.uninsured_rate = clamp(s.uninsured_rate + 0.8, 0, 100)
     new_s.public_health_index = clamp(s.public_health_index - 2, 0, 100)
     new_s.influence_meter = clamp(s.influence_meter - 2, 0, 100)  # Public backlash
+    new_s.last_lobbied += 1
     update_turn(new_s)
     return new_s
 
@@ -305,6 +308,7 @@ def risk_selection(s):
     new_s.uninsured_rate = clamp(s.uninsured_rate + 0.6, 0, 100)
     new_s.profit = clamp(s.profit + 5, 0, 200)
     new_s.public_health_index = clamp(s.public_health_index - 4, 0, 100)
+    new_s.last_lobbied += 1
     update_turn(new_s)
     return new_s
 
@@ -316,6 +320,7 @@ def narrow_provider_network(s):
     new_s.uninsured_rate = clamp(s.uninsured_rate + 0.8, 0, 100)
     new_s.profit = clamp(s.profit + 3, 0, 200)
     new_s.public_health_index = clamp(s.public_health_index - 4, 0, 100)
+    new_s.last_lobbied += 1
     update_turn(new_s)
     return new_s
 
@@ -323,11 +328,12 @@ def lobby_government(s):
     new_s = State(s)
     add_to_next_transition(int_to_name(s.whose_turn)+" lobbies government, causing policymaker to lose a turn.", new_s)
     new_s.access_gap_index = clamp(s.access_gap_index + 3, 0, 100)
-    new_s.influence_meter = clamp(s.influence_meter + 5, 0, 100)
     new_s.uninsured_rate = clamp(s.uninsured_rate + 0.6, 0, 100)
     new_s.public_health_index = clamp(s.public_health_index - 4, 0, 100)
+    new_s.influence_meter = clamp(s.influence_meter - 5, 0, 100)
     # Skip policymaker's next turn
     new_s.skip_next_turn = True
+    new_s.last_lobbied = 0
     update_turn(new_s)
     return new_s
 
@@ -339,6 +345,7 @@ def misinformation_campaigns(s):
     new_s.uninsured_rate = clamp(s.uninsured_rate + 0.3, 0, 100)
     new_s.profit = clamp(s.profit - 3, 0, 200)  # Campaigns cost money
     new_s.public_trust_meter = clamp(s.public_trust_meter - 5, 0, 100)  # Reduce policymaker trust
+    new_s.last_lobbied += 1
     update_turn(new_s)
     return new_s
 
@@ -349,6 +356,7 @@ def bribe_policymakers(s):
     new_s.budget = clamp(s.budget + 5, 0, 200)  # Some money goes to policymaker
     new_s.influence_meter = clamp(s.influence_meter + 8, 0, 100)
     new_s.public_trust_meter = clamp(s.public_trust_meter - 8, 0, 100)  # If discovered
+    new_s.last_lobbied += 1
     update_turn(new_s)
     return new_s
 
@@ -382,7 +390,7 @@ def can_narrow_network(s):
     return s.whose_turn == INSURANCE_COMPANY
 
 def can_lobby(s):
-    return s.whose_turn == INSURANCE_COMPANY
+    return s.whose_turn == INSURANCE_COMPANY and s.influence_meter == 80 and s.last_lobbied >= 3
 
 def can_misinformation(s):
     return s.whose_turn == INSURANCE_COMPANY and s.profit >= 3
@@ -423,7 +431,7 @@ INSURANCE_COMPANY_OPS = [Operator("Raise Premiums",\
   lambda s: s.whose_turn == INSURANCE_COMPANY,
   lambda s: narrow_provider_network(s)),
   Operator("Lobby Government",\
-  lambda s: s.whose_turn == INSURANCE_COMPANY,
+  lambda s: can_lobby(s),
   lambda s: lobby_government(s)),
   Operator("Misinformation Campaigns",\
   lambda s: s.whose_turn == INSURANCE_COMPANY and s.profit >= 3,
