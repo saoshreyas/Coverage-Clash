@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 '''
 Coverage_Clash_Beta.py
 Updated version of "Coverage Clash" game with full state variables and operators.
@@ -486,7 +485,7 @@ def use_BRIFL_SVG():
   from  Healthcare_SVG_FOR_BRIFL import render_state
 DEBUG_VIS = True
 #</STATE_VIS>
-=======
+
 '''
 Coverage_Clash_Beta.py
 Updated version of "Coverage Clash" game with full state variables and operators.
@@ -992,4 +991,3 @@ def use_BRIFL_SVG():
 DEBUG_VIS = True
 #</STATE_VIS>
 
->>>>>>> Stashed changes
