@@ -103,7 +103,18 @@ def render_state(s, roles=None):
         # Special status messages
         draw_special_status(dwg, s, 20, 500)
         
-        insert_card(dwg,("i",2),350,340)
+        insert_card(dwg,("r",0),350,340)
+        insert_card(dwg,("r",1),500,340)
+        insert_card(dwg,("r",2),650,340)
+        insert_card(dwg,("r",3),400,450)
+        insert_card(dwg,("r",4),550,450)
+        insert_card(dwg,("r",5),700,450)
+        
+        """
+        this is a template for how it'll look rn.
+        once the different roles view starts working,
+        i'll figure out about substituting in different roles' different operator cards.
+        """
         
         # Win/lose status
         if s.win:
@@ -480,3 +491,23 @@ def insert_card(dwg, card, x, y):
     h = IMAGE_HEIGHT*scale_factor
     image = dwg.image(url, insert=(x, y), size=(w, h))
     dwg.add(image)
+
+"""
+def r_insert():
+    insert_card(dwg,("r",0),350,340)
+    insert_card(dwg,("r",1),500,340)
+    insert_card(dwg,("r",2),650,340)
+    insert_card(dwg,("r",3),400,450)
+    insert_card(dwg,("r",4),550,450)
+    insert_card(dwg,("r",5),700,450)
+"""
+
+"""
+def i_insert():
+    insert_card(dwg,("i",0),350,340)
+    insert_card(dwg,("i",1),500,340)
+    insert_card(dwg,("i",2),650,340)
+    insert_card(dwg,("i",3),400,450)
+    insert_card(dwg,("i",4),550,450)
+    insert_card(dwg,("i",5),700,450)
+"""
