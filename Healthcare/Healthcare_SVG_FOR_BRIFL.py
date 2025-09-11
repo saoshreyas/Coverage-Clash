@@ -103,6 +103,8 @@ def render_state(s, roles=None):
         # Special status messages
         draw_special_status(dwg, s, 20, 500)
         
+        insert_card(dwg,("i",2),300,400)
+        
         # Win/lose status
         if s.win:
             draw_game_over(dwg, s)
@@ -451,10 +453,30 @@ CARD_IMAGES=\
      ("r",3): "Mandate Coverage.jpg",
      ("r",4): "Request Funds.jpg",
      ("r",5): "Subsidize Coverage.jpg",
-     ("p",0): "Bribe Policymakers.jpg",
-     ("p",1): "Lobby Government.jpg",
-     ("p",2): "Misinformation.jpg",
-     ("p",3): "Narrow Networik.jpg",
-     ("p",4): "Raise Premiums.jpg",
-     ("p",5): "Risk Selection.jpg"\
+     ("i",0): "Bribe Policymakers.jpg",
+     ("i",1): "Lobby Government.jpg",
+     ("i",2): "Misinformation.jpg",
+     ("i",3): "Narrow Networik.jpg",
+     ("i",4): "Raise Premiums.jpg",
+     ("i",5): "Risk Selection.jpg"\
     }
+
+IMAGE_WIDTH = 200
+IMAGE_HEIGHT = 350
+
+def insert_card(dwg, card, x, y):
+    global session
+    try:
+      filename = CARD_IMAGES[card]
+    except Exception as e:
+        print("Could not access card filename from card object.")
+        print(e)
+    try:
+        url = "http://"+session['HOST']+":"+str(session['PORT'])+"/get_image/"+filename
+    except Exception as e2:
+        print("A problem creating the URL. ", e2)
+    scale_factor = 0.35
+    w = IMAGE_WIDTH*scale_factor
+    h = IMAGE_HEIGHT*scale_factor
+    image = dwg.image(url, insert=(x, y), size=(w, h))
+    dwg.add(image)
