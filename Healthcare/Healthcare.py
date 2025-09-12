@@ -50,7 +50,7 @@ class State(Basic_State):
             self.profit = 65  # insurer profit in billions
             self.public_trust_meter = 50  # policymaker trust percentage
             self.influence_meter = 70  # insurer influence percentage
-            self.budget = 50  # policymaker budget in billions
+            self.budget = 70  # policymaker budget in billions
             self.premium_cap_turns_left = 0  # turns left where insurer can't raise premiums
             self.skip_next_turn = False  # for lobbying effects
             self.win = "" # String that describes a win, if any.
@@ -58,6 +58,9 @@ class State(Basic_State):
             self.bribe_choice_active = False # Flag to activate bribe options
             self.public_expansion_cap_turns_left = 0 # New variable for bribery effect
             self.last_lobbied = 0
+            self.policymaker_bonus_turn_used_55 = False
+            self.policymaker_bonus_turn_used_62 = False
+            self.policymaker_bonus_turn_used_72 = False
             # The initial state is now ready.
         else:
             # Here we handle the case where an old state was passed in;
@@ -81,6 +84,9 @@ class State(Basic_State):
             self.bribe_choice_active = old.bribe_choice_active
             self.public_expansion_cap_turns_left = old.public_expansion_cap_turns_left
             self.last_lobbied = old.last_lobbied
+            self.policymaker_bonus_turn_used_55 = old.policymaker_bonus_turn_used_55
+            self.policymaker_bonus_turn_used_62 = old.policymaker_bonus_turn_used_62
+            self.policymaker_bonus_turn_used_72 = old.policymaker_bonus_turn_used_72
 
     def __str__(self):
         # Produces a simple textual description of a state.
@@ -113,12 +119,14 @@ class State(Basic_State):
             return ("Insurance Company wins! Profit target achieved.", INSURANCE_COMPANY)
             
         # lose conditions
-        if self.uninsured_rate > 25:
+        if self.uninsured_rate > 14:
             return ("Game over - Uninsured rate too high! Both sides lose.", -1)
         if self.public_health_index < 30:
             return ("Game over - Public health crisis! Both sides lose.", -1)
         if self.access_gap_index > 45:
             return ("Game over - The access gap between income groups is too high! Policymaker loses.", INSURANCE_COMPANY)
+        if self.public_trust_meter < 30:
+            return ("Game over - The Policymaker has lost public trust and has been voted out! Policymaker loses.", INSURANCE_COMPANY)
             
         return False
   
@@ -188,12 +196,28 @@ def next_player(k):
   else: return POLICY_MAKER
 
 def update_turn(news):
-  # For use after the new state has been created.
-  # Handle skip turn mechanic
+  
+  # First, check if the turn should be skipped (Insurer bribe)
   if news.skip_next_turn:
     news.skip_next_turn = False
     return
-    
+
+  # Now, check if a bonus turn should be given based on the public trust meter
+  if news.whose_turn == POLICY_MAKER:
+    if news.public_trust_meter >= 72 and not news.policymaker_bonus_turn_used_72:
+      add_to_next_transition("The Policymaker has reached a public trust meter of 72% and earns a bonus turn!", news)
+      news.policymaker_bonus_turn_used_72 = True
+      return
+    elif news.public_trust_meter >= 62 and not news.policymaker_bonus_turn_used_62:
+      add_to_next_transition("The Policymaker has reached a public trust meter of 62% and earns a bonus turn!", news)
+      news.policymaker_bonus_turn_used_62 = True
+      return
+    elif news.public_trust_meter >= 55 and not news.policymaker_bonus_turn_used_55:
+      add_to_next_transition("The Policymaker has reached a public trust meter of 55% and earns a bonus turn!", news)
+      news.policymaker_bonus_turn_used_55 = True
+      return
+
+  # If no bonus turn is granted, proceed with normal turn advancement
   current = news.whose_turn
   updated = next_player(current)
   news.whose_turn = updated
@@ -203,7 +227,6 @@ def update_turn(news):
   # Decrement premium cap counter
   if news.premium_cap_turns_left > 0 and news.whose_turn == POLICY_MAKER:
     news.premium_cap_turns_left -= 1
-  # No need to return anything. New state has been mutated.
 
 def clamp(value, min_val, max_val):
     return max(min_val, min(max_val, value))
@@ -224,12 +247,12 @@ def get_session():
 def expand_public_coverage(s):
     new_s = State(s)
     add_to_next_transition(int_to_name(s.whose_turn)+" expands public coverage.", new_s)
-    new_s.access_gap_index = clamp(s.access_gap_index - 7, 0, 100)
+    new_s.access_gap_index = clamp(s.access_gap_index - 6, 0, 100)
     new_s.public_trust_meter = clamp(s.public_trust_meter + 3, 0, 100)
     new_s.uninsured_rate = clamp(s.uninsured_rate - 0.5, 0, 100)
     new_s.profit = clamp(s.profit - 5, 0, 200)
     new_s.public_health_index = clamp(s.public_health_index + 5, 0, 100)
-    new_s.budget = clamp(s.budget - 20, 0, 200)
+    new_s.budget = clamp(s.budget - 17, 0, 200)
     update_turn(new_s)
     return new_s
 
@@ -241,7 +264,7 @@ def subsidize_coverage(s):
     new_s.uninsured_rate = clamp(s.uninsured_rate - 0.3, 0, 100)
     new_s.profit = clamp(s.profit - 3, 0, 200)
     new_s.public_health_index = clamp(s.public_health_index + 4, 0, 100)
-    new_s.budget = clamp(s.budget - 14, 0, 200)
+    new_s.budget = clamp(s.budget - 11, 0, 200)
     update_turn(new_s)
     return new_s
 
@@ -255,7 +278,7 @@ def request_funds(s):
         new_s.bribe_choice_active = True
     else:
         add_to_next_transition("Request succeeds!", new_s)
-        new_s.budget = clamp(s.budget + 8, 0, 200)
+        new_s.budget = clamp(s.budget + 15, 0, 200)
         
     update_turn(new_s)
     return new_s
@@ -268,7 +291,7 @@ def cap_premiums(s):
     new_s.influence_meter = clamp(s.influence_meter - 8, 0, 100)
     new_s.uninsured_rate = clamp(s.uninsured_rate - 0.2, 0, 100)
     new_s.premium_cap_turns_left = 3  # Insurer can't raise premiums for 3 turns
-    new_s.budget = clamp(s.budget - 14, 0, 200)
+    new_s.budget = clamp(s.budget - 11, 0, 200)
     update_turn(new_s)
     return new_s
 
@@ -279,7 +302,7 @@ def mandate_coverage(s):
     new_s.public_trust_meter = clamp(s.public_trust_meter - 2, 0, 100)  # Some public backlash
     new_s.uninsured_rate = clamp(s.uninsured_rate - 1.0, 0, 100)
     new_s.public_health_index = clamp(s.public_health_index + 3, 0, 100)
-    new_s.budget = clamp(s.budget - 10, 0, 200)
+    new_s.budget = clamp(s.budget - 7, 0, 200)
     update_turn(new_s)
     return new_s
 
@@ -290,7 +313,7 @@ def invest_in_clinics(s):
     new_s.public_health_index = clamp(s.public_health_index + 6, 0, 100)
     new_s.uninsured_rate = clamp(s.uninsured_rate - 0.4, 0, 100)
     new_s.public_trust_meter = clamp(s.public_trust_meter + 4, 0, 100)
-    new_s.budget = clamp(s.budget - 18, 0, 200)
+    new_s.budget = clamp(s.budget - 15, 0, 200)
     update_turn(new_s)
     return new_s
 
@@ -422,7 +445,7 @@ def can_narrow_network(s):
     return s.whose_turn == INSURANCE_COMPANY
 
 def can_lobby(s):
-    return s.whose_turn == INSURANCE_COMPANY and s.influence_meter >= 80 and s.last_lobbied >= 3
+    return s.whose_turn == INSURANCE_COMPANY and s.influence_meter >= 75 and s.last_lobbied >= 3
 
 def can_misinformation(s):
     return s.whose_turn == INSURANCE_COMPANY and s.profit >= 3
