@@ -120,13 +120,13 @@ class State(Basic_State):
             
         # lose conditions
         if self.uninsured_rate > 14:
-            return ("Game over - Uninsured rate too high! Both sides lose.", -1)
+            return ("Game over - Uninsured rate too high! Both sides lost.", -1)
         if self.public_health_index < 30:
-            return ("Game over - Public health crisis! Both sides lose.", -1)
+            return ("Game over - Public health crisis! Both sides lost.", -1)
         if self.access_gap_index > 45:
-            return ("Game over - The access gap between income groups is too high! Policymaker loses.", INSURANCE_COMPANY)
+            return ("Game over - The access gap between income groups is too high! Policymaker lost.", INSURANCE_COMPANY)
         if self.public_trust_meter < 30:
-            return ("Game over - The Policymaker has lost public trust and has been voted out! Policymaker loses.", INSURANCE_COMPANY)
+            return ("Game over - The Policymaker has lost public trust and has been voted out! Policymaker lost.", INSURANCE_COMPANY)
             
         return False
   
@@ -278,7 +278,7 @@ def request_funds(s):
         new_s.bribe_choice_active = True
     else:
         add_to_next_transition("Request succeeds!", new_s)
-        new_s.budget = clamp(s.budget + 15, 0, 200)
+        new_s.budget = clamp(s.budget + 25, 0, 200)
         
     update_turn(new_s)
     return new_s
@@ -335,7 +335,7 @@ def risk_selection(s):
     new_s = State(s)
     add_to_next_transition(int_to_name(s.whose_turn)+" engages in risk selection.", new_s)
     new_s.access_gap_index = clamp(s.access_gap_index + 6, 0, 100)
-    new_s.influence_meter = clamp(s.influence_meter - 5, 0, 100)
+    new_s.influence_meter = clamp(s.influence_meter - 4, 0, 100)
     new_s.uninsured_rate = clamp(s.uninsured_rate + 0.6, 0, 100)
     new_s.profit = clamp(s.profit + 5, 0, 200)
     new_s.public_health_index = clamp(s.public_health_index - 4, 0, 100)
@@ -361,7 +361,8 @@ def lobby_government(s):
     new_s.access_gap_index = clamp(s.access_gap_index + 3, 0, 100)
     new_s.uninsured_rate = clamp(s.uninsured_rate + 0.6, 0, 100)
     new_s.public_health_index = clamp(s.public_health_index - 4, 0, 100)
-    '''new_s.influence_meter = clamp(s.influence_meter - 5, 0, 100)'''
+    new_s.public_trust_meter = clamp(s.public_trust_meter - 5, 0, 100)
+    new_s.influence_meter = clamp(s.influence_meter + 5, 0, 100)
     # Skip policymaker's next turn
     new_s.skip_next_turn = True
     new_s.last_lobbied = 0
@@ -372,7 +373,7 @@ def misinformation_campaigns(s):
     new_s = State(s)
     add_to_next_transition(int_to_name(s.whose_turn)+" launches misinformation campaigns.", new_s)
     new_s.access_gap_index = clamp(s.access_gap_index + 3, 0, 100)
-    new_s.influence_meter = clamp(s.influence_meter + 5, 0, 100)
+    new_s.influence_meter = clamp(s.influence_meter + 8, 0, 100)
     new_s.uninsured_rate = clamp(s.uninsured_rate + 0.3, 0, 100)
     new_s.profit = clamp(s.profit - 3, 0, 200)  # Campaigns cost money
     new_s.public_trust_meter = clamp(s.public_trust_meter - 5, 0, 100)  # Reduce policymaker trust
@@ -383,7 +384,9 @@ def misinformation_campaigns(s):
 def prevent_expansion(s):
     new_s = State(s)
     add_to_next_transition(int_to_name(s.whose_turn)+" uses intercepted funds to prevent public coverage expansion for 3 turns.", new_s)
-    new_s.public_expansion_cap_turns_left = 3
+    new_s.public_expansion_cap_turns_left = 2
+    new_s.profit = clamp(s.profit + 10, 0, 200)
+    new_s.influence_meter = clamp(s.influence_meter + 8, 0, 100)
     new_s.bribe_choice_active = False # Reset the flag
     new_s.skip_next_turn = True   # the Insurer still gets their regular turn in addition to the bribe
     update_turn(new_s)
@@ -392,7 +395,9 @@ def prevent_expansion(s):
 def fund_misinformation_with_bribe(s):
     new_s = State(s)
     add_to_next_transition(int_to_name(s.whose_turn)+" uses intercepted funds to launch a misinformation campaign.", new_s)
-    new_s.public_trust_meter = clamp(s.public_trust_meter - 5, 0, 100)
+    new_s.public_trust_meter = clamp(s.public_trust_meter - 8, 0, 100)
+    new_s.profit = clamp(s.profit + 10, 0, 200)
+    new_s.influence_meter = clamp(s.influence_meter + 8, 0, 100)
     new_s.bribe_choice_active = False # Reset the flag
     new_s.skip_next_turn = True   # the Insurer still gets their regular turn in addition to the bribe
     update_turn(new_s)
