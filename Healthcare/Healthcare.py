@@ -104,7 +104,7 @@ class State(Basic_State):
         return (self.__str__()).__hash__()
     
     def find_any_win(self):
-        '''# Policy Maker win condition: Access Gap Index below 15 (improved access)
+        # Policy Maker win condition: Access Gap Index below 15 (improved access)
         if self.access_gap_index < 15:
             return ("Policy Maker wins! Healthcare access significantly improved.", POLICY_MAKER)
             
@@ -118,7 +118,7 @@ class State(Basic_State):
         if self.public_health_index < 30:
             return ("Game over - Public health crisis! Both sides lose.", -1)
         if self.access_gap_index > 45:
-            return ("Game over - The access gap between income groups is too high! Policymaker loses.", INSURANCE_COMPANY)'''
+            return ("Game over - The access gap between income groups is too high! Policymaker loses.", INSURANCE_COMPANY)
             
         return False
   
@@ -249,8 +249,8 @@ def request_funds(s):
     new_s = State(s)
     add_to_next_transition(int_to_name(s.whose_turn)+" requests funds from the government.", new_s)
     
-    # 25% chance of being intercepted by the insurer
-    if random.random() < 0.9:
+    # 30% chance of being intercepted by the insurer
+    if random.random() < 0.3:
         add_to_next_transition("Funds are intercepted! The Insurance Company can now choose to act.", new_s)
         new_s.bribe_choice_active = True
     else:
