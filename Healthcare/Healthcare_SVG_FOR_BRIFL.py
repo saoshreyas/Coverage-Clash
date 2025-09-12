@@ -4,7 +4,7 @@
 # Based on OCCLUEdo_SVG_VIS_FOR_BRIFL.py structure
 
 import svgwrite
-import Healthcare as prob  # Import the main game module
+import Healthcare1 as prob  # Import the main game module
 
 DEBUG = True
 W = 1000  # Width of visualization region
@@ -186,20 +186,23 @@ def draw_goals_panel(dwg, s, role, x, y):
     if role == prob.POLICY_MAKER:
         goals = [
             ("WIN CONDITION:", ""),
-            ("Access Gap < 15", f"(currently {s.access_gap_index})", SUCCESS_COLOR if s.access_gap_index < 15 else WARNING_COLOR),
+            ("Access Gap < 15", f"(currently {s.access_gap_index})", SUCCESS_COLOR if s.access_gap_index < 12 else WARNING_COLOR),
             ("", ""),
             ("AVOID LOSING:", ""),
-            ("Uninsured > 25%", f"(currently {s.uninsured_rate:.1f}%)", WARNING_COLOR if s.uninsured_rate > 20 else SUCCESS_COLOR),
-            ("Public Health < 30", f"(currently {s.public_health_index})", WARNING_COLOR if s.public_health_index < 40 else SUCCESS_COLOR),
-            ("Budget = 0", f"(currently ${s.budget}B)", WARNING_COLOR if s.budget < 15 else SUCCESS_COLOR)
+            ("Uninsured > 14%", f"(currently {s.uninsured_rate:.1f}%)", WARNING_COLOR if s.uninsured_rate > 20 else SUCCESS_COLOR),
+            ("Public Health Index < 30", f"(currently {s.public_health_index})", WARNING_COLOR if s.public_health_index < 40 else SUCCESS_COLOR),
+            ("Access Gap Index > 45", f"(currently {s.access_gap_index})", WARNING_COLOR if s.access_gap_index > 40 else SUCCESS_COLOR),
+            ("Public Trust Meter < 30%", f"(currently {s.access_gap_index})", WARNING_COLOR if s.public_trust_meter < 37 else SUCCESS_COLOR),
+            ("Insurer Profit > 85B (Insurer wins)", f"(currently {s.profit})", WARNING_COLOR if s.profit > 78 else SUCCESS_COLOR)
         ]
     elif role == prob.INSURANCE_COMPANY:
         goals = [
             ("WIN CONDITION:", ""),
-            ("Profit > $85B", f"(currently ${s.profit}B)", SUCCESS_COLOR if s.profit > 85 else WARNING_COLOR),
+            ("Profit > $85B", f"(currently ${s.profit}B)", SUCCESS_COLOR if s.profit > 80 else WARNING_COLOR),
+            ("Access Gap > 45 (Policymaker loses)", f"(currently ${s.profit}B)", SUCCESS_COLOR if s.access_gap_index > 40 else WARNING_COLOR),
             ("", ""),
             ("AVOID LOSING:", ""),
-            ("Uninsured > 25%", f"(currently {s.uninsured_rate:.1f}%)", WARNING_COLOR if s.uninsured_rate > 20 else SUCCESS_COLOR),
+            ("Uninsured > 14%", f"(currently {s.uninsured_rate:.1f}%)", WARNING_COLOR if s.uninsured_rate > 20 else SUCCESS_COLOR),
             ("Public Health < 30", f"(currently {s.public_health_index})", WARNING_COLOR if s.public_health_index < 40 else SUCCESS_COLOR)
         ]
     else:
@@ -565,4 +568,3 @@ def i_insert(dwg):
     insert_card(dwg,("i",3),400,450)
     insert_card(dwg,("i",4),550,450)
     insert_card(dwg,("i",5),700,450)
-
