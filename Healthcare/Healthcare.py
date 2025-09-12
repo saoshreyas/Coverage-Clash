@@ -104,7 +104,7 @@ class State(Basic_State):
         return (self.__str__()).__hash__()
     
     def find_any_win(self):
-        # Policy Maker win condition: Access Gap Index below 15 (improved access)
+        '''# Policy Maker win condition: Access Gap Index below 15 (improved access)
         if self.access_gap_index < 15:
             return ("Policy Maker wins! Healthcare access significantly improved.", POLICY_MAKER)
             
@@ -112,13 +112,13 @@ class State(Basic_State):
         if self.profit > 85:
             return ("Insurance Company wins! Profit target achieved.", INSURANCE_COMPANY)
             
-        # Shared lose conditions
+        # lose conditions
         if self.uninsured_rate > 25:
             return ("Game over - Uninsured rate too high! Both sides lose.", -1)
         if self.public_health_index < 30:
             return ("Game over - Public health crisis! Both sides lose.", -1)
-        if self.budget <= 0:
-            return ("Game over - Policy Maker out of budget! Insurance Company wins.", INSURANCE_COMPANY)
+        if self.access_gap_index > 45:
+            return ("Game over - The access gap between income groups is too high! Policymaker loses.", INSURANCE_COMPANY)'''
             
         return False
   
@@ -224,7 +224,7 @@ def get_session():
 def expand_public_coverage(s):
     new_s = State(s)
     add_to_next_transition(int_to_name(s.whose_turn)+" expands public coverage.", new_s)
-    new_s.access_gap_index = clamp(s.access_gap_index - 5, 0, 100)
+    new_s.access_gap_index = clamp(s.access_gap_index - 7, 0, 100)
     new_s.public_trust_meter = clamp(s.public_trust_meter + 3, 0, 100)
     new_s.uninsured_rate = clamp(s.uninsured_rate - 0.5, 0, 100)
     new_s.profit = clamp(s.profit - 5, 0, 200)
@@ -250,10 +250,9 @@ def request_funds(s):
     add_to_next_transition(int_to_name(s.whose_turn)+" requests funds from the government.", new_s)
     
     # 25% chance of being intercepted by the insurer
-    if random.random() < 0.25:
+    if random.random() < 0.9:
         add_to_next_transition("Funds are intercepted! The Insurance Company can now choose to act.", new_s)
         new_s.bribe_choice_active = True
-        '''new_s.budget = clamp(s.budget + 8, 0, 200) # Funds are still added'''
     else:
         add_to_next_transition("Request succeeds!", new_s)
         new_s.budget = clamp(s.budget + 8, 0, 200)
@@ -363,6 +362,7 @@ def prevent_expansion(s):
     add_to_next_transition(int_to_name(s.whose_turn)+" uses intercepted funds to prevent public coverage expansion for 3 turns.", new_s)
     new_s.public_expansion_cap_turns_left = 3
     new_s.bribe_choice_active = False # Reset the flag
+    new_s.skip_next_turn = True   # the Insurer still gets their regular turn in addition to the bribe
     update_turn(new_s)
     return new_s
 
@@ -371,6 +371,7 @@ def fund_misinformation_with_bribe(s):
     add_to_next_transition(int_to_name(s.whose_turn)+" uses intercepted funds to launch a misinformation campaign.", new_s)
     new_s.public_trust_meter = clamp(s.public_trust_meter - 5, 0, 100)
     new_s.bribe_choice_active = False # Reset the flag
+    new_s.skip_next_turn = True   # the Insurer still gets their regular turn in addition to the bribe
     update_turn(new_s)
     return new_s
   
@@ -421,7 +422,7 @@ def can_narrow_network(s):
     return s.whose_turn == INSURANCE_COMPANY
 
 def can_lobby(s):
-    return s.whose_turn == INSURANCE_COMPANY and s.influence_meter == 80 and s.last_lobbied >= 3
+    return s.whose_turn == INSURANCE_COMPANY and s.influence_meter >= 80 and s.last_lobbied >= 3
 
 def can_misinformation(s):
     return s.whose_turn == INSURANCE_COMPANY and s.profit >= 3
@@ -481,10 +482,10 @@ INSURANCE_COMPANY_OPS = [Operator("Raise Premiums",\
   lambda s: misinformation_campaigns(s)),
   # bribe operators
   Operator("Prevent Expansion (Bribe)",\
-  lambda s: s.bribe_choice_active,
+  lambda s: can_bribe_prevent_expansion(s),
   lambda s: prevent_expansion(s)),
   Operator("Fund Misinformation (Bribe)",\
-  lambda s: s.bribe_choice_active,
+  lambda s: can_bribe_fund_misinformation(s),
   lambda s: fund_misinformation_with_bribe(s)),
   Operator("Pass",\
   lambda s: i_can_pass(s),
