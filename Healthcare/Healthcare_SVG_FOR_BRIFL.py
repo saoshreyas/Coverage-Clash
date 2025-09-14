@@ -4,11 +4,11 @@
 # Based on OCCLUEdo_SVG_VIS_FOR_BRIFL.py structure
 
 import svgwrite
-import Healthcare1 as prob  # Import the main game module
+import Healthcare as prob  # Import the main game module
 
 DEBUG = True
 W = 1000  # Width of visualization region
-H = 600   # Height of visualization region
+H = 600   # Increased height to accommodate larger cards
 PANEL_WIDTH = W // 3
 PANEL_HEIGHT = H // 2
 
@@ -91,17 +91,15 @@ def render_state(s, roles=None):
                         font_size=MEDIUM_FS,
                         fill=turn_color))
         
-        # Draw main dashboard panels
-        draw_metrics_panel(dwg, s, 20, 80)
-        draw_goals_panel(dwg, s, role, 350, 80)
-        draw_status_panel(dwg, s, 680, 80)
-        draw_progress_panel(dwg, s, 20, 340)
+        # Draw main dashboard panels - removed metrics panel, expanded status
+        draw_goals_panel(dwg, s, role, 20, 80)
+        draw_status_panel(dwg, s, 350, 80)  # Expanded status panel
         
-        # Draw progress bars
+        # Draw progress bars with extra metrics
         draw_progress_bars(dwg, s, 35, 400)
         
-        # Special status messages
-        draw_special_status(dwg, s, 20, 500)
+        # Special status messages moved to not block progress bars
+        draw_special_status(dwg, s, 680, 350)
         
         if role == prob.POLICY_MAKER:
             r_insert(dwg)
@@ -116,54 +114,10 @@ def render_state(s, roles=None):
     svg_string = dwg.tostring()
     return svg_string
 
-def draw_metrics_panel(dwg, s, x, y):
-    """Draw the main game metrics panel"""
-    panel_width = 300
-    panel_height = 250
-
-    # Panel background
-    dwg.add(dwg.rect(insert=(x, y),
-        size=(panel_width, panel_height),
-        fill="white",
-        stroke="rgb(200, 200, 200)",
-        stroke_width="1",
-        rx="5"))
-
-    # Panel title
-    dwg.add(dwg.text("Game Metrics", insert=(x + panel_width//2, y + 20),
-        text_anchor="middle",
-        font_size=MEDIUM_FS,
-        font_weight="bold",
-        fill="rgb(51, 51, 51)"))
-
-    # Metrics list
-    metrics = [
-        ("Uninsured Rate", f"{s.uninsured_rate:.1f}%", get_health_color(s.uninsured_rate, 25, True)),
-        ("Public Health Index", f"{s.public_health_index}", get_health_color(s.public_health_index, 30, False)),
-        ("Access Gap Index", f"{s.access_gap_index}", get_health_color(s.access_gap_index, 50, True)),
-        ("Insurance Profit", f"${s.profit}B", "rgb(51, 51, 51)"),
-        ("Public Trust", f"{s.public_trust_meter}%", get_trust_color(s.public_trust_meter)),
-        ("Insurer Influence", f"{s.influence_meter}%", get_influence_color(s.influence_meter)),
-        ("Policy Budget", f"${s.budget}B", get_budget_color(s.budget))
-    ]
-
-    y_offset = 45
-
-    for label, value, color in metrics:
-        dwg.add(dwg.text(f"{label}:", insert=(x + 10, y + y_offset),
-            font_size=SMALL_FS,
-            fill="rgb(108, 117, 125)"))
-        dwg.add(dwg.text(value, insert=(x + panel_width - 10, y + y_offset),
-            text_anchor="end",
-            font_size=SMALL_FS,
-            font_weight="bold",
-            fill=color))
-        y_offset += 25
-
 def draw_goals_panel(dwg, s, role, x, y):
     """Draw the goals and win conditions panel"""
-    panel_width = 300
-    panel_height = 250
+    panel_width = 320
+    panel_height = 260
 
     # Panel background
     dwg.add(dwg.rect(insert=(x, y),
@@ -189,20 +143,24 @@ def draw_goals_panel(dwg, s, role, x, y):
             ("Access Gap < 15", f"(currently {s.access_gap_index})", SUCCESS_COLOR if s.access_gap_index < 12 else WARNING_COLOR),
             ("", ""),
             ("AVOID LOSING:", ""),
-            ("Uninsured > 14%", f"(currently {s.uninsured_rate:.1f}%)", WARNING_COLOR if s.uninsured_rate > 20 else SUCCESS_COLOR),
+            ("Uninsured > 14%", f"(currently {s.uninsured_rate:.1f}%)", WARNING_COLOR if s.uninsured_rate > 12 else SUCCESS_COLOR),
             ("Public Health Index < 30", f"(currently {s.public_health_index})", WARNING_COLOR if s.public_health_index < 40 else SUCCESS_COLOR),
-            ("Access Gap Index > 45", f"(currently {s.access_gap_index})", WARNING_COLOR if s.access_gap_index > 40 else SUCCESS_COLOR),
-            ("Public Trust Meter < 30%", f"(currently {s.access_gap_index})", WARNING_COLOR if s.public_trust_meter < 37 else SUCCESS_COLOR),
-            ("Insurer Profit > 85B (Insurer wins)", f"(currently {s.profit})", WARNING_COLOR if s.profit > 78 else SUCCESS_COLOR)
+            ("Access Gap Index > 45", f"", WARNING_COLOR if s.access_gap_index > 40 else SUCCESS_COLOR),
+            ("(Policymaker loses)", f"(currently {s.access_gap_index})", WARNING_COLOR if s.access_gap_index > 40 else SUCCESS_COLOR),
+            ("Public Trust Meter < 30%", f"", WARNING_COLOR if s.public_trust_meter < 37 else SUCCESS_COLOR),
+            ("(Policymaker loses)", f"(currently {s.public_trust_meter}%)", WARNING_COLOR if s.public_trust_meter < 37 else SUCCESS_COLOR),
+            ("Insurer Profit > $85B", f"", WARNING_COLOR if s.profit > 78 else SUCCESS_COLOR),
+            ("(Insurer wins)", f"(currently ${s.profit}B)", WARNING_COLOR if s.profit > 78 else SUCCESS_COLOR)
         ]
     elif role == prob.INSURANCE_COMPANY:
         goals = [
             ("WIN CONDITION:", ""),
             ("Profit > $85B", f"(currently ${s.profit}B)", SUCCESS_COLOR if s.profit > 80 else WARNING_COLOR),
-            ("Access Gap > 45 (Policymaker loses)", f"(currently ${s.profit}B)", SUCCESS_COLOR if s.access_gap_index > 40 else WARNING_COLOR),
+            ("Access Gap > 45", f"", SUCCESS_COLOR if s.access_gap_index > 40 else WARNING_COLOR),
+            ("(Policymaker loses)", f"(currently {s.access_gap_index})", SUCCESS_COLOR if s.access_gap_index > 40 else WARNING_COLOR),
             ("", ""),
             ("AVOID LOSING:", ""),
-            ("Uninsured > 14%", f"(currently {s.uninsured_rate:.1f}%)", WARNING_COLOR if s.uninsured_rate > 20 else SUCCESS_COLOR),
+            ("Uninsured > 14%", f"(currently {s.uninsured_rate:.1f}%)", WARNING_COLOR if s.uninsured_rate > 12 else SUCCESS_COLOR),
             ("Public Health < 30", f"(currently {s.public_health_index})", WARNING_COLOR if s.public_health_index < 40 else SUCCESS_COLOR)
         ]
     else:
@@ -225,71 +183,12 @@ def draw_goals_panel(dwg, s, role, x, y):
                 text_anchor="end",
                 font_size=SMALL_FS,
                 fill=color))
-        y_offset += 20
+        y_offset += 18
 
 def draw_status_panel(dwg, s, x, y):
-    """Draw current status and special conditions panel"""
-    panel_width = 300
-    panel_height = 250
-
-    # Panel background
-    dwg.add(dwg.rect(insert=(x, y),
-        size=(panel_width, panel_height),
-        fill="white",
-        stroke="rgb(200, 200, 200)",
-        stroke_width="1",
-        rx="5"))
-
-      # Panel title
-    dwg.add(dwg.text("Current Status", insert=(x + panel_width//2, y + 20),
-        text_anchor="middle",
-        font_size=MEDIUM_FS,
-        font_weight="bold",
-        fill="rgb(51, 51, 51)"))
-    
-    y_offset = 45
-    
-    if role == prob.POLICY_MAKER:
-        goals = [
-            ("WIN CONDITION:", ""),
-            ("Access Gap < 15", f"(currently {s.access_gap_index})", SUCCESS_COLOR if s.access_gap_index < 15 else WARNING_COLOR),
-            ("", ""),
-            ("AVOID LOSING:", ""),
-            ("Uninsured > 25%", f"(currently {s.uninsured_rate:.1f}%)", WARNING_COLOR if s.uninsured_rate > 20 else SUCCESS_COLOR),
-            ("Public Health < 30", f"(currently {s.public_health_index})", WARNING_COLOR if s.public_health_index < 40 else SUCCESS_COLOR),
-            ("Budget = 0", f"(currently ${s.budget}B)", WARNING_COLOR if s.budget < 15 else SUCCESS_COLOR)
-        ]
-    elif role == prob.INSURANCE_COMPANY:
-        goals = [
-            ("WIN CONDITION:", ""),
-            ("Profit > $85B", f"(currently ${s.profit}B)", SUCCESS_COLOR if s.profit > 85 else WARNING_COLOR),
-            ("", ""),
-            ("AVOID LOSING:", ""),
-            ("Uninsured > 25%", f"(currently {s.uninsured_rate:.1f}%)", WARNING_COLOR if s.uninsured_rate > 20 else SUCCESS_COLOR),
-            ("Public Health < 30", f"(currently {s.public_health_index})", WARNING_COLOR if s.public_health_index < 40 else SUCCESS_COLOR)
-        ]
-    else:
-        goals = [("Observer", "No specific goals", "rgb(108, 117, 125)")]
-    
-    for label, value, color in goals:
-        if label == "":
-            y_offset += 10
-            continue
-        dwg.add(dwg.text(label, insert=(x + 10, y + y_offset),
-                        font_size=SMALL_FS,
-                        fill="rgb(51, 51, 51)" if color == "" else color,
-                        font_weight="bold" if "CONDITION" in label or "LOSING" in label else "normal"))
-        if value:
-            dwg.add(dwg.text(value, insert=(x + panel_width - 10, y + y_offset),
-                            text_anchor="end",
-                            font_size=SMALL_FS,
-                            fill=color))
-        y_offset += 20
-
-def draw_status_panel(dwg, s, x, y):
-    """Draw current status and special conditions panel"""
-    panel_width = 300
-    panel_height = 250
+    """Draw current status and special conditions panel with extra metrics"""
+    panel_width = 320
+    panel_height = 260
     
     # Panel background
     dwg.add(dwg.rect(insert=(x, y),
@@ -300,13 +199,35 @@ def draw_status_panel(dwg, s, x, y):
                     rx="5"))
     
     # Panel title
-    dwg.add(dwg.text("Current Status", insert=(x + panel_width//2, y + 20),
+    dwg.add(dwg.text("Current Status & Metrics", insert=(x + panel_width//2, y + 20),
                     text_anchor="middle",
                     font_size=MEDIUM_FS,
                     font_weight="bold",
                     fill="rgb(51, 51, 51)"))
     
     y_offset = 45
+    
+    # Game metrics that were removed from separate panel
+    metrics = [
+        ("Uninsured Rate", f"{s.uninsured_rate:.1f}%", get_health_color(s.uninsured_rate, 25, True)),
+        ("Public Health Index", f"{s.public_health_index}", get_health_color(s.public_health_index, 30, False)),
+        ("Access Gap Index", f"{s.access_gap_index}", get_health_color(s.access_gap_index, 50, True)),
+        ("Insurance Profit", f"${s.profit}B", "rgb(51, 51, 51)"),
+        ("Policy Budget", f"${s.budget}B", get_budget_color(s.budget))
+    ]
+
+    for label, value, color in metrics:
+        dwg.add(dwg.text(f"{label}:", insert=(x + 10, y + y_offset),
+            font_size=SMALL_FS,
+            fill="rgb(108, 117, 125)"))
+        dwg.add(dwg.text(value, insert=(x + panel_width - 10, y + y_offset),
+            text_anchor="end",
+            font_size=SMALL_FS,
+            font_weight="bold",
+            fill=color))
+        y_offset += 20
+    
+    y_offset += 10
     
     # Special conditions
     if s.premium_cap_turns_left > 0:
@@ -318,7 +239,18 @@ def draw_status_panel(dwg, s, x, y):
                         text_anchor="end",
                         font_size=SMALL_FS,
                         fill=ACCENT_COLOR))
-        y_offset += 25
+        y_offset += 18
+    
+    if s.public_expansion_cap_turns_left > 0:
+        dwg.add(dwg.text("Public Expansion Blocked:", insert=(x + 10, y + y_offset),
+                        font_size=SMALL_FS,
+                        fill=WARNING_COLOR,
+                        font_weight="bold"))
+        dwg.add(dwg.text(f"{s.public_expansion_cap_turns_left} turns left", insert=(x + panel_width - 10, y + y_offset),
+                        text_anchor="end",
+                        font_size=SMALL_FS,
+                        fill=WARNING_COLOR))
+        y_offset += 18
     
     if s.skip_next_turn:
         dwg.add(dwg.text("Next Turn Skipped:", insert=(x + 10, y + y_offset),
@@ -329,54 +261,34 @@ def draw_status_panel(dwg, s, x, y):
                         text_anchor="end",
                         font_size=SMALL_FS,
                         fill=WARNING_COLOR))
-        y_offset += 25
-    
-    # Risk warnings
-    warnings = []
-    if s.uninsured_rate > 20:
-        warnings.append("High Uninsured Rate!")
-    if s.public_health_index < 40:
-        warnings.append("Poor Public Health!")
-    if s.budget < 15:
-        warnings.append("Low Budget!")
-    if s.access_gap_index > 40:
-        warnings.append("High Access Gap!")
-    
-    if warnings:
-        dwg.add(dwg.text("⚠ WARNINGS:", insert=(x + 10, y + y_offset),
+        y_offset += 18
+
+    # Lobbying benchmark info
+    if s.influence_meter >= 75 and s.last_lobbied >= 3:
+        dwg.add(dwg.text("Lobbying Available!", insert=(x + 10, y + y_offset),
                         font_size=SMALL_FS,
-                        fill=WARNING_COLOR,
+                        fill=SUCCESS_COLOR,
                         font_weight="bold"))
-        y_offset += 20
-        
-        for warning in warnings:
-            dwg.add(dwg.text(f"• {warning}", insert=(x + 20, y + y_offset),
-                            font_size=SMALL_FS,
-                            fill=WARNING_COLOR))
-            y_offset += 18
-            
-def draw_progress_panel(dwg, s, x, y):
-    panel_width = 300
-    panel_height = 225
-    
-    dwg.add(dwg.rect(insert=(x, y),
-                    size=(panel_width, panel_height),
-                    fill="white",
-                    stroke="rgb(200, 200, 200)",
-                    stroke_width="1",
-                    rx="5"))
+        y_offset += 18
+    elif s.influence_meter >= 75:
+        dwg.add(dwg.text(f"Lobbying in {3 - s.last_lobbied} turns", insert=(x + 10, y + y_offset),
+                        font_size=SMALL_FS,
+                        fill="rgb(255, 193, 7)"))
+        y_offset += 18
 
 def draw_progress_bars(dwg, s, x, y):
     """Draw visual progress bars for key metrics"""
     bar_width = 200
     bar_height = 20
     
-    # Progress bars for key metrics
+    # Progress bars for key metrics - added extra metrics from removed panel
     bars = [
         ("Public Health", s.public_health_index, 100, SUCCESS_COLOR),
         ("Public Trust", s.public_trust_meter, 100, ACCENT_COLOR),
         ("Insurer Influence", s.influence_meter, 100, WARNING_COLOR),
-        ("Budget Level", min(s.budget, 100), 100, "rgb(13, 110, 253)")
+        ("Budget Level", min(s.budget, 100), 100, "rgb(13, 110, 253)"),
+        ("Access Gap", 100 - s.access_gap_index, 100, SUCCESS_COLOR),  # Inverted so lower gap = higher bar
+        ("Coverage Rate", 100 - s.uninsured_rate, 100, SUCCESS_COLOR)  # Inverted so lower uninsured = higher bar
     ]
     
     dwg.add(dwg.text("Key Indicators", insert=(x, y - 25),
@@ -403,27 +315,42 @@ def draw_progress_bars(dwg, s, x, y):
         dwg.add(dwg.text(label, insert=(x, y + y_offset - 5),
                         font_size=SMALL_FS,
                         fill="rgb(51, 51, 51)"))
-        dwg.add(dwg.text(f"{value:.0f}", insert=(x + bar_width + 10, y + y_offset + 15),
+        
+        # Show actual values for inverted metrics
+        if "Access Gap" in label:
+            display_value = s.access_gap_index
+        elif "Coverage Rate" in label:
+            display_value = f"{100 - s.uninsured_rate:.1f}%"
+        else:
+            display_value = f"{value:.0f}"
+            
+        dwg.add(dwg.text(str(display_value), insert=(x + bar_width + 10, y + y_offset + 15),
                         font_size=SMALL_FS,
                         fill="rgb(51, 51, 51)"))
         
-        y_offset += 40
+        y_offset += 35
 
 def draw_special_status(dwg, s, x, y):
-    """Draw special status messages"""
+    """Draw special status messages - moved to not block progress bars"""
     messages = []
     
-    # Check for approaching win/lose conditions
-    if s.access_gap_index < 20:
+    # Check for approaching win/lose conditions - moved position
+    if s.access_gap_index < 20 and s.access_gap_index >= 15:
         messages.append(("Policy Maker close to victory!", SUCCESS_COLOR))
-    if s.profit > 80:
+    if s.profit > 80 and s.profit <= 85:
         messages.append(("Insurance Company close to victory!", WARNING_COLOR))
-    if s.uninsured_rate > 22:
+    if s.uninsured_rate > 12:
         messages.append(("Approaching failure condition!", WARNING_COLOR))
     if s.public_health_index < 35:
         messages.append(("Health crisis approaching!", WARNING_COLOR))
     
-    y_offset = 0
+    if messages:
+        dwg.add(dwg.text("Alerts", insert=(x, y - 10),
+                        font_size=MEDIUM_FS,
+                        font_weight="bold",
+                        fill="rgb(51, 51, 51)"))
+    
+    y_offset = 10
     for message, color in messages:
         dwg.add(dwg.text(f"⚡ {message}", insert=(x, y + y_offset),
                         font_size=SMALL_FS,
@@ -545,7 +472,7 @@ def insert_card(dwg, card, x, y):
         url = "http://"+session['HOST']+":"+str(session['PORT'])+"/get_image/"+filename
     except Exception as e2:
         print("A problem creating the URL. ", e2)
-    scale_factor = 0.35
+    scale_factor = 0.50
     w = IMAGE_WIDTH*scale_factor
     h = IMAGE_HEIGHT*scale_factor
     image = dwg.image(url, insert=(x, y), size=(w, h))
@@ -553,18 +480,18 @@ def insert_card(dwg, card, x, y):
 
 
 def r_insert(dwg):
-    insert_card(dwg,("r",0),350,340)
-    insert_card(dwg,("r",1),500,340)
-    insert_card(dwg,("r",2),650,340)
-    insert_card(dwg,("r",3),400,450)
-    insert_card(dwg,("r",4),550,450)
-    insert_card(dwg,("r",5),700,450)
+    insert_card(dwg,("r",0),320,350)
+    insert_card(dwg,("r",1),480,350)
+    insert_card(dwg,("r",2),650,350)
+    insert_card(dwg,("r",3),800,350)
+    insert_card(dwg,("r",4),650,100)
+    insert_card(dwg,("r",5),800,100)
 
 
 def i_insert(dwg):
-    insert_card(dwg,("i",0),350,340)
-    insert_card(dwg,("i",1),500,340)
-    insert_card(dwg,("i",2),650,340)
-    insert_card(dwg,("i",3),400,450)
-    insert_card(dwg,("i",4),550,450)
-    insert_card(dwg,("i",5),700,450)
+    insert_card(dwg,("i",0),320,350)
+    insert_card(dwg,("i",1),480,350)
+    insert_card(dwg,("i",2),650,350)
+    insert_card(dwg,("i",3),800,350)
+    insert_card(dwg,("i",4),650,100)
+    insert_card(dwg,("i",5),800,100)
