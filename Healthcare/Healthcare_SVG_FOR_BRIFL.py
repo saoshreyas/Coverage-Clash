@@ -4,7 +4,7 @@
 # Based on OCCLUEdo_SVG_VIS_FOR_BRIFL.py structure
 
 import svgwrite
-import Healthcare as prob  # Import the main game module
+import Healthcare1 as prob  # Import the main game module
 
 DEBUG = True
 W = 1000  # Width of visualization region
@@ -96,7 +96,7 @@ def render_state(s, roles=None):
         draw_status_panel(dwg, s, 350, 80)  # Expanded status panel
         
         # Draw progress bars with extra metrics
-        draw_progress_bars(dwg, s, 35, 400)
+        draw_progress_bars(dwg, s, 35, 350)
         
         # Special status messages moved to not block progress bars
         draw_special_status(dwg, s, 680, 350)
@@ -117,7 +117,7 @@ def render_state(s, roles=None):
 def draw_goals_panel(dwg, s, role, x, y):
     """Draw the goals and win conditions panel"""
     panel_width = 320
-    panel_height = 260
+    panel_height = 210
 
     # Panel background
     dwg.add(dwg.rect(insert=(x, y),
@@ -145,10 +145,8 @@ def draw_goals_panel(dwg, s, role, x, y):
             ("AVOID LOSING:", ""),
             ("Uninsured > 17.8%", f"(currently {s.uninsured_rate:.1f}%)", WARNING_COLOR if s.uninsured_rate > 15.5 else SUCCESS_COLOR),
             ("Public Health Index < 30", f"(currently {s.public_health_index})", WARNING_COLOR if s.public_health_index < 40 else SUCCESS_COLOR),
-            ("Access Gap Index > 45", f"", WARNING_COLOR if s.access_gap_index > 40 else SUCCESS_COLOR),
-            ("(Policymaker loses)", f"(currently {s.access_gap_index})", WARNING_COLOR if s.access_gap_index > 40 else SUCCESS_COLOR),
-            ("Public Trust Meter < 30%", f"", WARNING_COLOR if s.public_trust_meter < 37 else SUCCESS_COLOR),
-            ("(Policymaker loses)", f"(currently {s.public_trust_meter}%)", WARNING_COLOR if s.public_trust_meter < 37 else SUCCESS_COLOR),
+            ("Access Gap Index > 45", f"(currently {s.access_gap_index})", WARNING_COLOR if s.access_gap_index > 40 else SUCCESS_COLOR),
+            ("Public Trust Meter < 30%", f"(currently {s.public_trust_meter}%)", WARNING_COLOR if s.public_trust_meter < 37 else SUCCESS_COLOR),
             ("Insurer Profit > $85B", f"", WARNING_COLOR if s.profit > 78 else SUCCESS_COLOR),
             ("(Insurer wins)", f"(currently ${s.profit}B)", WARNING_COLOR if s.profit > 78 else SUCCESS_COLOR)
         ]
@@ -160,7 +158,7 @@ def draw_goals_panel(dwg, s, role, x, y):
             ("(Policymaker loses)", f"(currently {s.access_gap_index})", SUCCESS_COLOR if s.access_gap_index > 40 else WARNING_COLOR),
             ("", ""),
             ("AVOID LOSING:", ""),
-            ("Uninsured > 17.8%", f"(currently {s.uninsured_rate:.1f}%)", WARNING_COLOR if s.uninsured_rate > 15.5 else SUCCESS_COLOR),
+            ("Uninsured > 14%", f"(currently {s.uninsured_rate:.1f}%)", WARNING_COLOR if s.uninsured_rate > 12 else SUCCESS_COLOR),
             ("Public Health < 30", f"(currently {s.public_health_index})", WARNING_COLOR if s.public_health_index < 40 else SUCCESS_COLOR)
         ]
     else:
@@ -187,7 +185,7 @@ def draw_goals_panel(dwg, s, role, x, y):
 
 def draw_status_panel(dwg, s, x, y):
     """Draw current status and special conditions panel with extra metrics"""
-    panel_width = 320
+    panel_width = 260
     panel_height = 260
     
     # Panel background
@@ -279,7 +277,8 @@ def draw_status_panel(dwg, s, x, y):
 def draw_progress_bars(dwg, s, x, y):
     """Draw visual progress bars for key metrics"""
     bar_width = 200
-    bar_height = 20
+    bar_height = 18
+    bar_spacing = 45
     
     # Progress bars for key metrics - added extra metrics from removed panel
     bars = [
@@ -299,7 +298,7 @@ def draw_progress_bars(dwg, s, x, y):
     y_offset = 0
     for label, value, max_val, color in bars:
         # Background bar
-        dwg.add(dwg.rect(insert=(x, y + y_offset),
+        dwg.add(dwg.rect(insert=(x, y + y_offset + 2.5),
                         size=(bar_width, bar_height),
                         fill="rgb(233, 236, 239)",
                         stroke="rgb(200, 200, 200)",
@@ -307,7 +306,7 @@ def draw_progress_bars(dwg, s, x, y):
         
         # Progress fill
         fill_width = (value / max_val) * bar_width
-        dwg.add(dwg.rect(insert=(x, y + y_offset),
+        dwg.add(dwg.rect(insert=(x, y + y_offset + 2.5),
                         size=(fill_width, bar_height),
                         fill=color))
         
@@ -328,7 +327,7 @@ def draw_progress_bars(dwg, s, x, y):
                         font_size=SMALL_FS,
                         fill="rgb(51, 51, 51)"))
         
-        y_offset += 35
+        y_offset += bar_spacing
 
 def draw_special_status(dwg, s, x, y):
     """Draw special status messages - moved to not block progress bars"""
@@ -472,7 +471,7 @@ def insert_card(dwg, card, x, y):
         url = "http://"+session['HOST']+":"+str(session['PORT'])+"/get_image/"+filename
     except Exception as e2:
         print("A problem creating the URL. ", e2)
-    scale_factor = 0.50
+    scale_factor = 0.65
     w = IMAGE_WIDTH*scale_factor
     h = IMAGE_HEIGHT*scale_factor
     image = dwg.image(url, insert=(x, y), size=(w, h))
@@ -484,8 +483,8 @@ def r_insert(dwg):
     insert_card(dwg,("r",1),480,350)
     insert_card(dwg,("r",2),650,350)
     insert_card(dwg,("r",3),800,350)
-    insert_card(dwg,("r",4),650,100)
-    insert_card(dwg,("r",5),800,100)
+    insert_card(dwg,("r",4),650,80)
+    insert_card(dwg,("r",5),800,80)
 
 
 def i_insert(dwg):
