@@ -44,7 +44,7 @@ class State(Basic_State):
             # in this game as whose_turn, the SOLUZION software 
             # needs both to be specified, in general.
             self.current_role = int_to_name(self.current_role_num)
-            self.uninsured_rate = 10.0  # percentage
+            self.uninsured_rate = 13.3  # percentage
             self.public_health_index = 60  # 0-100 scale
             self.access_gap_index = 30  # lower is better for policymaker
             self.profit = 65  # insurer profit in billions
@@ -121,8 +121,8 @@ class State(Basic_State):
             return ("Insurance Company wins! Profit target achieved.", INSURANCE_COMPANY)
             
         # lose conditions
-        if self.uninsured_rate > 14:
-            return ("Game over - Uninsured rate too high! Both sides lost.", -1)
+        if self.uninsured_rate > 17.8:
+            return ("Game over - Uninsured rate too high! Both sides lost.\nIn 2010, uninsured rate in the USA peaked at 17.8% in the wake of the 2008 Market crash and economic recession. That same year, the Affordable Care Act was signed into law as a countermeasure.", -1)
         if self.public_health_index < 30:
             return ("Game over - Public health crisis! Both sides lost.", -1)
         if self.access_gap_index > 45:
@@ -175,7 +175,7 @@ class State(Basic_State):
             if role_num == POLICY_MAKER:
                 txt += "\n--- POLICY MAKER GOALS ---\n"
                 txt += f"WIN: Get Access Gap Index below 15 (currently {self.access_gap_index})\n"
-                txt += f"AVOID: Uninsured rate above 25% (currently {self.uninsured_rate:.1f}%)\n"
+                txt += f"AVOID: Uninsured rate above 17.8% (currently {self.uninsured_rate:.1f}%)\n"
                 txt += f"AVOID: Public Health below 30 (currently {self.public_health_index})\n"
                 txt += f"AVOID: Budget reaching 0 (currently ${self.budget} billion)\n"
                 if self.budget < 15:
@@ -183,7 +183,7 @@ class State(Basic_State):
             elif role_num == INSURANCE_COMPANY:
                 txt += f"\n--- INSURANCE COMPANY GOALS ---\n"
                 txt += f"WIN: Get profit above $85 billion (currently ${self.profit} billion)\n"
-                txt += f"AVOID: Uninsured rate above 25% (currently {self.uninsured_rate:.1f}%)\n"
+                txt += f"AVOID: Uninsured rate above 17.8% (currently {self.uninsured_rate:.1f}%)\n"
                 txt += f"AVOID: Public Health below 30 (currently {self.public_health_index})\n"
                 if self.premium_cap_turns_left > 0:
                     txt += f"\nNOTE: Premium increases blocked for {self.premium_cap_turns_left} more turns\n"
@@ -283,7 +283,7 @@ def request_funds(s):
         new_s.budget = clamp(s.budget + 25, 0, 200)
     
     if new_s.funded == 1:
-        add_to_next_transition("\nDid you know? Public health in real life USA is also suffering for lack of funding. The current rising rate of chronic diseases is attributed in part to governmental underinvestment in Public Health infrastructure.", new_s)
+        add_to_next_transition("Did you know? Public health in real life USA is also suffering for lack of funding. The current rising rate of chronic diseases is attributed in part to governmental underinvestment in Public Health infrastructure.", new_s)
     
     update_turn(new_s)
     return new_s

@@ -143,7 +143,7 @@ def draw_goals_panel(dwg, s, role, x, y):
             ("Access Gap < 15", f"(currently {s.access_gap_index})", SUCCESS_COLOR if s.access_gap_index < 12 else WARNING_COLOR),
             ("", ""),
             ("AVOID LOSING:", ""),
-            ("Uninsured > 14%", f"(currently {s.uninsured_rate:.1f}%)", WARNING_COLOR if s.uninsured_rate > 12 else SUCCESS_COLOR),
+            ("Uninsured > 17.8%", f"(currently {s.uninsured_rate:.1f}%)", WARNING_COLOR if s.uninsured_rate > 15.5 else SUCCESS_COLOR),
             ("Public Health Index < 30", f"(currently {s.public_health_index})", WARNING_COLOR if s.public_health_index < 40 else SUCCESS_COLOR),
             ("Access Gap Index > 45", f"", WARNING_COLOR if s.access_gap_index > 40 else SUCCESS_COLOR),
             ("(Policymaker loses)", f"(currently {s.access_gap_index})", WARNING_COLOR if s.access_gap_index > 40 else SUCCESS_COLOR),
@@ -160,7 +160,7 @@ def draw_goals_panel(dwg, s, role, x, y):
             ("(Policymaker loses)", f"(currently {s.access_gap_index})", SUCCESS_COLOR if s.access_gap_index > 40 else WARNING_COLOR),
             ("", ""),
             ("AVOID LOSING:", ""),
-            ("Uninsured > 14%", f"(currently {s.uninsured_rate:.1f}%)", WARNING_COLOR if s.uninsured_rate > 12 else SUCCESS_COLOR),
+            ("Uninsured > 17.8%", f"(currently {s.uninsured_rate:.1f}%)", WARNING_COLOR if s.uninsured_rate > 15.5 else SUCCESS_COLOR),
             ("Public Health < 30", f"(currently {s.public_health_index})", WARNING_COLOR if s.public_health_index < 40 else SUCCESS_COLOR)
         ]
     else:
@@ -339,7 +339,7 @@ def draw_special_status(dwg, s, x, y):
         messages.append(("Policy Maker close to victory!", SUCCESS_COLOR))
     if s.profit > 80 and s.profit <= 85:
         messages.append(("Insurance Company close to victory!", WARNING_COLOR))
-    if s.uninsured_rate > 12:
+    if s.uninsured_rate > 15.5:
         messages.append(("Approaching failure condition!", WARNING_COLOR))
     if s.public_health_index < 35:
         messages.append(("Health crisis approaching!", WARNING_COLOR))
