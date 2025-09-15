@@ -381,7 +381,7 @@ def misinformation_campaigns(s):
     new_s.influence_meter = clamp(s.influence_meter + 8, 0, 100)
     new_s.uninsured_rate = clamp(s.uninsured_rate + 0.3, 0, 100)
     new_s.profit = clamp(s.profit - 3, 0, 200)  # Campaigns cost money
-    new_s.public_trust_meter = clamp(s.public_trust_meter - 5, 0, 100)  # Reduce policymaker trust
+    new_s.public_trust_meter = clamp(s.public_trust_meter - 3, 0, 100)  # Reduce policymaker trust
     new_s.last_lobbied += 1
     update_turn(new_s)
     return new_s
@@ -400,7 +400,7 @@ def prevent_expansion(s):
 def fund_misinformation_with_bribe(s):
     new_s = State(s)
     add_to_next_transition(int_to_name(s.whose_turn)+" uses intercepted funds to launch a misinformation campaign.", new_s)
-    new_s.public_trust_meter = clamp(s.public_trust_meter - 8, 0, 100)
+    new_s.public_trust_meter = clamp(s.public_trust_meter - 9, 0, 100)
     new_s.profit = clamp(s.profit + 10, 0, 200)
     new_s.influence_meter = clamp(s.influence_meter + 8, 0, 100)
     new_s.bribe_choice_active = False # Reset the flag
@@ -549,4 +549,3 @@ def use_BRIFL_SVG():
   from  Healthcare_SVG_FOR_BRIFL import render_state
 DEBUG_VIS = True
 #</STATE_VIS>
-
