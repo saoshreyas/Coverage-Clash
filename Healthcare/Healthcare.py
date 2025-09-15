@@ -114,7 +114,7 @@ class State(Basic_State):
     def find_any_win(self):
         # Policy Maker win condition: Access Gap Index below 15 (improved access)
         if self.access_gap_index < 15:
-            return ("Policy Maker wins! Healthcare access significantly improved.", POLICY_MAKER)
+            return ("Policy Maker wins! Healthcare access significantly improved.\n\nIn the real world, however, even well-intentioned policies can result in unforeseen consequences.\nThe Affordable Care Act, ironically, has led to mergers and market consolidation resulting in increased healthcare and coverage prices a decade after the law's passing.", POLICY_MAKER)
             
         # Insurance Company win condition: Profit greater than 85 billion
         if self.profit > 85:
