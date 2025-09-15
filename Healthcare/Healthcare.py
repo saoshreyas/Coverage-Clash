@@ -250,11 +250,17 @@ def expand_public_coverage(s):
     new_s = State(s)
     add_to_next_transition(int_to_name(s.whose_turn)+" expands public coverage.", new_s)
     new_s.access_gap_index = clamp(s.access_gap_index - 6, 0, 100)
+    add_to_next_transition("Access gap decreased to "+str(new_s.access_gap_index)+".", new_s)
     new_s.public_trust_meter = clamp(s.public_trust_meter + 3, 0, 100)
+    add_to_next_transition("Public trust increased to "+str(new_s.public_trust_meter)+".", new_s)
     new_s.uninsured_rate = clamp(s.uninsured_rate - 0.5, 0, 100)
+    add_to_next_transition("Uninsured rate decreased to "+str(new_s.uninsured_rate)+".", new_s)
     new_s.profit = clamp(s.profit - 5, 0, 200)
+    add_to_next_transition("Insurer's profit decreased to "+str(new_s.profit)+".", new_s)
     new_s.public_health_index = clamp(s.public_health_index + 5, 0, 100)
+    add_to_next_transition("Public health index increased to "+str(new_s.public_health_index)+".", new_s)
     new_s.budget = clamp(s.budget - 17, 0, 200)
+    add_to_next_transition("Budget decreased to "+str(new_s.budget)+".", new_s)
     update_turn(new_s)
     return new_s
 
@@ -262,11 +268,17 @@ def subsidize_coverage(s):
     new_s = State(s)
     add_to_next_transition(int_to_name(s.whose_turn)+" subsidizes coverage.", new_s)
     new_s.access_gap_index = clamp(s.access_gap_index - 3, 0, 100)
+    add_to_next_transition("Access gap decreased to "+str(new_s.access_gap_index)+".", new_s)
     new_s.public_trust_meter = clamp(s.public_trust_meter + 2, 0, 100)
+    add_to_next_transition("Public trust increased to "+str(new_s.public_trust_meter)+".", new_s)
     new_s.uninsured_rate = clamp(s.uninsured_rate - 0.3, 0, 100)
+    add_to_next_transition("Uninsured rate decreased to "+str(new_s.uninsured_rate)+".", new_s)
     new_s.profit = clamp(s.profit - 3, 0, 200)
+    add_to_next_transition("Insurer's profit decreased to "+str(new_s.profit)+".", new_s)
     new_s.public_health_index = clamp(s.public_health_index + 4, 0, 100)
+    add_to_next_transition("Public health index increased to "+str(new_s.public_health_index)+".", new_s)
     new_s.budget = clamp(s.budget - 11, 0, 200)
+    add_to_next_transition("Budget decreased to "+str(new_s.budget)+".", new_s)
     update_turn(new_s)
     return new_s
 
@@ -281,6 +293,7 @@ def request_funds(s):
     else:
         add_to_next_transition("Request succeeds!", new_s)
         new_s.budget = clamp(s.budget + 25, 0, 200)
+        add_to_next_transition("Budget increased to "+str(new_s.budget)+".", new_s)
     
     if new_s.funded == 1:
         add_to_next_transition("\nDid you know? Public health in real life USA is also suffering for lack of funding. The current rising rate of chronic diseases is attributed in part to governmental underinvestment in Public Health infrastructure.", new_s)
@@ -292,11 +305,16 @@ def cap_premiums(s):
     new_s = State(s)
     add_to_next_transition(int_to_name(s.whose_turn)+" caps insurance premiums.", new_s)
     new_s.access_gap_index = clamp(s.access_gap_index - 2, 0, 100)
+    add_to_next_transition("Access gap decreased to "+str(new_s.access_gap_index)+".", new_s)
     new_s.public_trust_meter = clamp(s.public_trust_meter + 5, 0, 100)
+    add_to_next_transition("Public trust increased to "+str(new_s.public_trust_meter)+".", new_s)
     new_s.influence_meter = clamp(s.influence_meter - 8, 0, 100)
+    add_to_next_transition("Insurer's influence decreased to to "+str(new_s.influence_meter)+".", new_s)
     new_s.uninsured_rate = clamp(s.uninsured_rate - 0.2, 0, 100)
+    add_to_next_transition("Uninsured rate decreased to "+str(new_s.uninsured_rate)+".", new_s)
     new_s.premium_cap_turns_left = 3  # Insurer can't raise premiums for 3 turns
     new_s.budget = clamp(s.budget - 11, 0, 200)
+    add_to_next_transition("Budget decreased to "+str(new_s.budget)+".", new_s)
     update_turn(new_s)
     return new_s
 
@@ -304,10 +322,15 @@ def mandate_coverage(s):
     new_s = State(s)
     add_to_next_transition(int_to_name(s.whose_turn)+" mandates coverage.", new_s)
     new_s.access_gap_index = clamp(s.access_gap_index - 4, 0, 100)
+    add_to_next_transition("Access gap decreased to "+str(new_s.access_gap_index)+".", new_s)
     new_s.public_trust_meter = clamp(s.public_trust_meter - 2, 0, 100)  # Some public backlash
+    add_to_next_transition("Public trust decreased to "+str(new_s.public_trust_meter)+".", new_s)
     new_s.uninsured_rate = clamp(s.uninsured_rate - 1.0, 0, 100)
+    add_to_next_transition("Uninsured rate decreased to "+str(new_s.uninsured_rate)+".", new_s)
     new_s.public_health_index = clamp(s.public_health_index + 3, 0, 100)
+    add_to_next_transition("Public health index increased to "+str(new_s.public_health_index)+".", new_s)
     new_s.budget = clamp(s.budget - 7, 0, 200)
+    add_to_next_transition("Budget decreased to "+str(new_s.budget)+".", new_s)
     update_turn(new_s)
     return new_s
 
@@ -315,10 +338,15 @@ def invest_in_clinics(s):
     new_s = State(s)
     add_to_next_transition(int_to_name(s.whose_turn)+" invests in public clinics.", new_s)
     new_s.access_gap_index = clamp(s.access_gap_index - 3, 0, 100)
+    add_to_next_transition("Access gap decreased to "+str(new_s.access_gap_index)+".", new_s)
     new_s.public_health_index = clamp(s.public_health_index + 6, 0, 100)
+    add_to_next_transition("Public health index increased to "+str(new_s.public_health_index)+".", new_s)
     new_s.uninsured_rate = clamp(s.uninsured_rate - 0.4, 0, 100)
+    add_to_next_transition("Uninsured rate decreased to "+str(new_s.uninsured_rate)+".", new_s)
     new_s.public_trust_meter = clamp(s.public_trust_meter + 4, 0, 100)
+    add_to_next_transition("Public trust increased to "+str(new_s.public_trust_meter)+".", new_s)
     new_s.budget = clamp(s.budget - 15, 0, 200)
+    add_to_next_transition("Budget decreased to "+str(new_s.budget)+".", new_s)
     update_turn(new_s)
     return new_s
 
@@ -328,10 +356,15 @@ def raise_premiums(s):
     new_s = State(s)
     add_to_next_transition(int_to_name(s.whose_turn)+" raises premiums.", new_s)
     new_s.profit = clamp(s.profit + 6, 0, 200)
+    add_to_next_transition("Insurer's profit increased to "+str(new_s.profit)+".", new_s)
     new_s.access_gap_index = clamp(s.access_gap_index + 3, 0, 100)
+    add_to_next_transition("Access gap increased to "+str(new_s.access_gap_index)+".", new_s)
     new_s.uninsured_rate = clamp(s.uninsured_rate + 0.8, 0, 100)
+    add_to_next_transition("Uninsured rate increased to "+str(new_s.uninsured_rate)+".", new_s)
     new_s.public_health_index = clamp(s.public_health_index - 2, 0, 100)
+    add_to_next_transition("Public health index decreased to "+str(new_s.public_health_index)+".", new_s)
     new_s.influence_meter = clamp(s.influence_meter - 2, 0, 100)  # Public backlash
+    add_to_next_transition("Insurer's influence increased to "+str(new_s.influence_meter)+".", new_s)
     new_s.last_lobbied += 1
     update_turn(new_s)
     return new_s
@@ -340,10 +373,15 @@ def risk_selection(s):
     new_s = State(s)
     add_to_next_transition(int_to_name(s.whose_turn)+" engages in risk selection.", new_s)
     new_s.access_gap_index = clamp(s.access_gap_index + 6, 0, 100)
+    add_to_next_transition("Access gap increased to "+str(new_s.access_gap_index)+".", new_s)
     new_s.influence_meter = clamp(s.influence_meter - 4, 0, 100)
+    add_to_next_transition("Insurer's influence decreased to "+str(new_s.influence_meter)+".", new_s)
     new_s.uninsured_rate = clamp(s.uninsured_rate + 0.6, 0, 100)
+    add_to_next_transition("Uninsured rate increased to "+str(new_s.uninsured_rate)+".", new_s)
     new_s.profit = clamp(s.profit + 5, 0, 200)
+    add_to_next_transition("Insurer's profit increased to "+str(new_s.profit)+".", new_s)
     new_s.public_health_index = clamp(s.public_health_index - 4, 0, 100)
+    add_to_next_transition("Public health index decreased to "+str(new_s.public_health_index)+".", new_s)
     new_s.last_lobbied += 1
     update_turn(new_s)
     return new_s
@@ -352,10 +390,15 @@ def narrow_provider_network(s):
     new_s = State(s)
     add_to_next_transition(int_to_name(s.whose_turn)+" narrows provider network.", new_s)
     new_s.access_gap_index = clamp(s.access_gap_index + 5, 0, 100)
+    add_to_next_transition("Access gap increased to "+str(new_s.access_gap_index)+".", new_s)
     new_s.influence_meter = clamp(s.influence_meter - 3, 0, 100)
+    add_to_next_transition("Insurer's influence decreased to "+str(new_s.influence_meter)+".", new_s)
     new_s.uninsured_rate = clamp(s.uninsured_rate + 0.8, 0, 100)
+    add_to_next_transition("Uninsured rate increased to "+str(new_s.uninsured_rate)+".", new_s)
     new_s.profit = clamp(s.profit + 3, 0, 200)
+    add_to_next_transition("Insurer's profit increased to "+str(new_s.profit)+".", new_s)
     new_s.public_health_index = clamp(s.public_health_index - 4, 0, 100)
+    add_to_next_transition("Public health index decreased to "+str(new_s.public_health_index)+".", new_s)
     new_s.last_lobbied += 1
     update_turn(new_s)
     return new_s
@@ -364,10 +407,15 @@ def lobby_government(s):
     new_s = State(s)
     add_to_next_transition(int_to_name(s.whose_turn)+" lobbies government, causing policymaker to lose a turn.", new_s)
     new_s.access_gap_index = clamp(s.access_gap_index + 3, 0, 100)
+    add_to_next_transition("Access gap increased to "+str(new_s.access_gap_index)+".", new_s)
     new_s.uninsured_rate = clamp(s.uninsured_rate + 0.6, 0, 100)
+    add_to_next_transition("Uninsured rate increased to "+str(new_s.uninsured_rate)+".", new_s)
     new_s.public_health_index = clamp(s.public_health_index - 4, 0, 100)
+    add_to_next_transition("Public health index decreased to "+str(new_s.public_health_index)+".", new_s)
     new_s.public_trust_meter = clamp(s.public_trust_meter - 5, 0, 100)
+    add_to_next_transition("Public trust decreased to "+str(new_s.public_trust_meter)+".", new_s)
     new_s.influence_meter = clamp(s.influence_meter + 5, 0, 100)
+    add_to_next_transition("Insurer's influence increased to "+str(new_s.influence_meter)+".", new_s)
     # Skip policymaker's next turn
     new_s.skip_next_turn = True
     new_s.last_lobbied = 0
@@ -378,10 +426,15 @@ def misinformation_campaigns(s):
     new_s = State(s)
     add_to_next_transition(int_to_name(s.whose_turn)+" launches misinformation campaigns.", new_s)
     new_s.access_gap_index = clamp(s.access_gap_index + 3, 0, 100)
+    add_to_next_transition("Access gap increased to "+str(new_s.access_gap_index)+".", new_s)
     new_s.influence_meter = clamp(s.influence_meter + 8, 0, 100)
+    add_to_next_transition("Insurer's influence increased to "+str(new_s.influence_meter)+".", new_s)
     new_s.uninsured_rate = clamp(s.uninsured_rate + 0.3, 0, 100)
+    add_to_next_transition("Uninsured rate increased to "+str(new_s.uninsured_rate)+".", new_s)
     new_s.profit = clamp(s.profit - 3, 0, 200)  # Campaigns cost money
+    add_to_next_transition("Insurer's profit decreased to "+str(new_s.profit)+".", new_s)
     new_s.public_trust_meter = clamp(s.public_trust_meter - 3, 0, 100)  # Reduce policymaker trust
+    add_to_next_transition("Public trust decreased to "+str(new_s.public_trust_meter)+".", new_s)
     new_s.last_lobbied += 1
     update_turn(new_s)
     return new_s
@@ -391,7 +444,9 @@ def prevent_expansion(s):
     add_to_next_transition(int_to_name(s.whose_turn)+" uses intercepted funds to prevent public coverage expansion for 3 turns.", new_s)
     new_s.public_expansion_cap_turns_left = 2
     new_s.profit = clamp(s.profit + 10, 0, 200)
+    add_to_next_transition("Insurer's profit increased to "+str(new_s.profit)+".", new_s)
     new_s.influence_meter = clamp(s.influence_meter + 8, 0, 100)
+    add_to_next_transition("Insurer's influence increased to "+str(new_s.influence_meter)+".", new_s)
     new_s.bribe_choice_active = False # Reset the flag
     new_s.skip_next_turn = True   # the Insurer still gets their regular turn in addition to the bribe
     update_turn(new_s)
@@ -401,8 +456,11 @@ def fund_misinformation_with_bribe(s):
     new_s = State(s)
     add_to_next_transition(int_to_name(s.whose_turn)+" uses intercepted funds to launch a misinformation campaign.", new_s)
     new_s.public_trust_meter = clamp(s.public_trust_meter - 9, 0, 100)
+    add_to_next_transition("Public trust decreased to "+str(new_s.public_trust_meter)+".", new_s)
     new_s.profit = clamp(s.profit + 10, 0, 200)
+    add_to_next_transition("Insurer's profit increased to "+str(new_s.profit)+".", new_s)
     new_s.influence_meter = clamp(s.influence_meter + 8, 0, 100)
+    add_to_next_transition("Insurer's influence increased to "+str(new_s.influence_meter)+".", new_s)
     new_s.bribe_choice_active = False # Reset the flag
     new_s.skip_next_turn = True   # the Insurer still gets their regular turn in addition to the bribe
     update_turn(new_s)
