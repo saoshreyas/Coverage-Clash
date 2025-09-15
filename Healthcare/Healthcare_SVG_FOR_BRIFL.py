@@ -4,7 +4,7 @@
 # Based on OCCLUEdo_SVG_VIS_FOR_BRIFL.py structure
 
 import svgwrite
-import Healthcare as prob  # Import the main game module
+import Healthcare1 as prob  # Import the main game module
 
 DEBUG = True
 W = 1000  # Width of visualization region
@@ -105,11 +105,6 @@ def render_state(s, roles=None):
             r_insert(dwg)
         elif role == prob.INSURANCE_COMPANY:
             i_insert(dwg)
-        else:
-            if s.whose_turn == prob.POLICY_MAKER:
-                r_insert(dwg)
-            else:
-                i_insert(dwg)
         
         # Win/lose status
         if s.win:
@@ -145,7 +140,7 @@ def draw_goals_panel(dwg, s, role, x, y):
     if role == prob.POLICY_MAKER:
         goals = [
             ("WIN CONDITION:", ""),
-            ("Access Gap < 13", f"(currently {s.access_gap_index})", SUCCESS_COLOR if s.access_gap_index < 12 else WARNING_COLOR),
+            ("Access Gap < 15", f"(currently {s.access_gap_index})", SUCCESS_COLOR if s.access_gap_index < 12 else WARNING_COLOR),
             ("", ""),
             ("AVOID LOSING:", ""),
             ("Uninsured > 17.8%", f"(currently {s.uninsured_rate:.1f}%)", WARNING_COLOR if s.uninsured_rate > 15.5 else SUCCESS_COLOR),
@@ -189,9 +184,9 @@ def draw_goals_panel(dwg, s, role, x, y):
         y_offset += 18
 
 def draw_status_panel(dwg, s, x, y):
-    """Draw current status and special conditions panel with extra metrics and warnings"""
-    panel_width = 320
-    panel_height = 300  # Increased height to accommodate warnings
+    """Draw current status and special conditions panel with extra metrics"""
+    panel_width = 260
+    panel_height = 260
     
     # Panel background
     dwg.add(dwg.rect(insert=(x, y),
@@ -210,7 +205,7 @@ def draw_status_panel(dwg, s, x, y):
     
     y_offset = 45
     
-    # Game metrics that were removed from separate panel - made more compact
+    # Game metrics that were removed from separate panel
     metrics = [
         ("Uninsured Rate", f"{s.uninsured_rate:.1f}%", get_health_color(s.uninsured_rate, 25, True)),
         ("Public Health Index", f"{s.public_health_index}", get_health_color(s.public_health_index, 30, False)),
@@ -228,106 +223,56 @@ def draw_status_panel(dwg, s, x, y):
             font_size=SMALL_FS,
             font_weight="bold",
             fill=color))
-        y_offset += 16  # Reduced spacing
+        y_offset += 20
     
-    y_offset += 8
+    y_offset += 10
     
-    # Add warnings section - ensure it stays within bounds
-    warnings = []
-    if s.uninsured_rate > 20:
-        warnings.append("High Uninsured Rate!")
-    if s.public_health_index < 40:
-        warnings.append("Poor Public Health!")
-    if s.budget < 15:
-        warnings.append("Low Budget!")
-    if s.access_gap_index > 40:
-        warnings.append("High Access Gap!")
+    # Special conditions
+    if s.premium_cap_turns_left > 0:
+        dwg.add(dwg.text("Premium Cap Active:", insert=(x + 10, y + y_offset),
+                        font_size=SMALL_FS,
+                        fill=ACCENT_COLOR,
+                        font_weight="bold"))
+        dwg.add(dwg.text(f"{s.premium_cap_turns_left} turns left", insert=(x + panel_width - 10, y + y_offset),
+                        text_anchor="end",
+                        font_size=SMALL_FS,
+                        fill=ACCENT_COLOR))
+        y_offset += 18
     
-    if warnings and y_offset < y + panel_height - 60:  # Check if there's space
-        dwg.add(dwg.text("⚠ WARNINGS:", insert=(x + 10, y + y_offset),
+    if s.public_expansion_cap_turns_left > 0:
+        dwg.add(dwg.text("Public Expansion Blocked:", insert=(x + 10, y + y_offset),
                         font_size=SMALL_FS,
                         fill=WARNING_COLOR,
                         font_weight="bold"))
-        y_offset += 16
-        for warning in warnings:
-            if y_offset < y + panel_height - 20:  # Ensure each warning fits
-                dwg.add(dwg.text(f"• {warning}", insert=(x + 20, y + y_offset),
-                                font_size=SMALL_FS,
-                                fill=WARNING_COLOR))
-                y_offset += 14  # Reduced spacing
-        y_offset += 5  # Add some spacing after warnings
-
-    messages = []
-    if s.access_gap_index < 20 and s.access_gap_index >= 12:
-        messages.append(("Policy Maker close to victory!", SUCCESS_COLOR))
-    if s.profit > 80 and s.profit <= 85:
-        messages.append(("Insurance Company close to victory!", WARNING_COLOR))
-    if s.uninsured_rate > 15.5:
-        messages.append(("Approaching failure condition!", WARNING_COLOR))
-    if s.public_health_index < 35:
-        messages.append(("Health crisis approaching!", WARNING_COLOR))
-
-    if messages and y_offset < y + panel_height - 60:
-        dwg.add(dwg.text("⚡ ALERTS:", insert=(x + 10, y + y_offset),
+        dwg.add(dwg.text(f"{s.public_expansion_cap_turns_left} turns left", insert=(x + panel_width - 10, y + y_offset),
+                        text_anchor="end",
                         font_size=SMALL_FS,
-                        fill="rgb(51, 51, 51)",
+                        fill=WARNING_COLOR))
+        y_offset += 18
+    
+    if s.skip_next_turn:
+        dwg.add(dwg.text("Next Turn Skipped:", insert=(x + 10, y + y_offset),
+                        font_size=SMALL_FS,
+                        fill=WARNING_COLOR,
                         font_weight="bold"))
-        y_offset += 16
-        for message, color in messages:
-            if y_offset < y + panel_height - 20:
-                dwg.add(dwg.text(f"• {message}", insert=(x + 20, y + y_offset),
-                                font_size=SMALL_FS,
-                                font_weight="bold",
-                                fill=color))
-                y_offset += 14
-        y_offset += 5
-    # Special conditions - only add if there's space remaining
-    if y_offset < y + panel_height - 40:
-        if s.premium_cap_turns_left > 0:
-            dwg.add(dwg.text("Premium Cap Active:", insert=(x + 10, y + y_offset),
-                            font_size=SMALL_FS,
-                            fill=ACCENT_COLOR,
-                            font_weight="bold"))
-            dwg.add(dwg.text(f"{s.premium_cap_turns_left} turns left", insert=(x + panel_width - 10, y + y_offset),
-                            text_anchor="end",
-                            font_size=SMALL_FS,
-                            fill=ACCENT_COLOR))
-            y_offset += 16
-        
-        if s.public_expansion_cap_turns_left > 0 and y_offset < y + panel_height - 20:
-            dwg.add(dwg.text("Public Expansion Blocked:", insert=(x + 10, y + y_offset),
-                            font_size=SMALL_FS,
-                            fill=WARNING_COLOR,
-                            font_weight="bold"))
-            dwg.add(dwg.text(f"{s.public_expansion_cap_turns_left} turns left", insert=(x + panel_width - 10, y + y_offset),
-                            text_anchor="end",
-                            font_size=SMALL_FS,
-                            fill=WARNING_COLOR))
-            y_offset += 16
-        
-        if s.skip_next_turn and y_offset < y + panel_height - 20:
-            dwg.add(dwg.text("Next Turn Skipped:", insert=(x + 10, y + y_offset),
-                            font_size=SMALL_FS,
-                            fill=WARNING_COLOR,
-                            font_weight="bold"))
-            dwg.add(dwg.text("Lobbying Effect", insert=(x + panel_width - 10, y + y_offset),
-                            text_anchor="end",
-                            font_size=SMALL_FS,
-                            fill=WARNING_COLOR))
-            y_offset += 16
+        dwg.add(dwg.text("Lobbying Effect", insert=(x + panel_width - 10, y + y_offset),
+                        text_anchor="end",
+                        font_size=SMALL_FS,
+                        fill=WARNING_COLOR))
+        y_offset += 18
 
-        # Lobbying benchmark info
-        if s.influence_meter >= 75 and s.last_lobbied >= 3 and y_offset < y + panel_height - 20:
-            dwg.add(dwg.text("Lobbying Available!", insert=(x + 10, y + y_offset),
-                            font_size=SMALL_FS,
-                            fill=SUCCESS_COLOR,
-                            font_weight="bold"))
-            y_offset += 16
-        elif s.influence_meter >= 75 and y_offset < y + panel_height - 20:
-            dwg.add(dwg.text(f"Lobbying in {3 - s.last_lobbied} turns", insert=(x + 10, y + y_offset),
-                            font_size=SMALL_FS,
-                            fill="rgb(255, 193, 7)"))
-            y_offset += 16
+    # Lobbying benchmark info
+    if s.influence_meter >= 75 and s.last_lobbied >= 3:
+        dwg.add(dwg.text("Lobbying Available!", insert=(x + 10, y + y_offset),
+                        font_size=SMALL_FS,
+                        fill=SUCCESS_COLOR,
+                        font_weight="bold"))
+        y_offset += 18
+    elif s.influence_meter >= 75:
+        dwg.add(dwg.text(f"Lobbying in {3 - s.last_lobbied} turns", insert=(x + 10, y + y_offset),
+                        font_size=SMALL_FS,
+                        fill="rgb(255, 193, 7)"))
+        y_offset += 18
 
 def draw_progress_bars(dwg, s, x, y):
     """Draw visual progress bars for key metrics"""
@@ -389,7 +334,7 @@ def draw_special_status(dwg, s, x, y):
     messages = []
     
     # Check for approaching win/lose conditions - moved position
-    if s.access_gap_index < 20 and s.access_gap_index >= 12:
+    if s.access_gap_index < 20 and s.access_gap_index >= 15:
         messages.append(("Policy Maker close to victory!", SUCCESS_COLOR))
     if s.profit > 80 and s.profit <= 85:
         messages.append(("Insurance Company close to victory!", WARNING_COLOR))
@@ -504,10 +449,10 @@ CARD_IMAGES=\
      ("r",3): "Mandate Coverage.jpg",
      ("r",4): "Request Funds.jpg",
      ("r",5): "Subsidize Coverage.jpg",
-     ("i",0): "Bribe Policymakers.jpg",
-     ("i",1): "Lobby Government.jpg",
-     ("i",2): "Misinformation.jpg",
-     ("i",3): "Narrow Network.jpg",
+     ("i",0): "Lobby Government.jpg",
+     ("i",1): "Misinformation.jpg",
+     ("i",2): "Narrow Network.jpg",
+     ("i",3): "Funds Intercepted.png",
      ("i",4): "Raise Premiums.jpg",
      ("i",5): "Risk Selection.jpg"\
     }
