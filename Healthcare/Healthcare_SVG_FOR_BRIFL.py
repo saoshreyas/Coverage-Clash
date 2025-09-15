@@ -4,7 +4,7 @@
 # Based on OCCLUEdo_SVG_VIS_FOR_BRIFL.py structure
 
 import svgwrite
-import Healthcare1 as prob  # Import the main game module
+import Healthcare as prob  # Import the main game module
 
 DEBUG = True
 W = 1000  # Width of visualization region
@@ -105,6 +105,11 @@ def render_state(s, roles=None):
             r_insert(dwg)
         elif role == prob.INSURANCE_COMPANY:
             i_insert(dwg)
+        else:
+            if s.whose_turn == prob.POLICY_MAKER:
+                r_insert(dwg)
+            else:
+                i_insert(dwg)
         
         # Win/lose status
         if s.win:
