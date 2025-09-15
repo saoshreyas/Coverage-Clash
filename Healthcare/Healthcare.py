@@ -113,7 +113,7 @@ class State(Basic_State):
     
     def find_any_win(self):
         # Policy Maker win condition: Access Gap Index below 15 (improved access)
-        if self.access_gap_index < 15:
+        if self.access_gap_index < 13:
             return ("Policy Maker wins! Healthcare access significantly improved.\n\nIn the real world, however, even well-intentioned policies can result in unforeseen consequences.\nThe Affordable Care Act, ironically, has led to mergers and market consolidation resulting in increased healthcare and coverage prices a decade after the law's passing.", POLICY_MAKER)
             
         # Insurance Company win condition: Profit greater than 85 billion
@@ -174,7 +174,7 @@ class State(Basic_State):
         if self.win == "":
             if role_num == POLICY_MAKER:
                 txt += "\n--- POLICY MAKER GOALS ---\n"
-                txt += f"WIN: Get Access Gap Index below 15 (currently {self.access_gap_index})\n"
+                txt += f"WIN: Get Access Gap Index below 13 (currently {self.access_gap_index})\n"
                 txt += f"AVOID: Uninsured rate above 17.8% (currently {self.uninsured_rate:.1f}%)\n"
                 txt += f"AVOID: Public Health below 30 (currently {self.public_health_index})\n"
                 txt += f"AVOID: Budget reaching 0 (currently ${self.budget} billion)\n"
@@ -549,3 +549,4 @@ def use_BRIFL_SVG():
   from  Healthcare_SVG_FOR_BRIFL import render_state
 DEBUG_VIS = True
 #</STATE_VIS>
+
