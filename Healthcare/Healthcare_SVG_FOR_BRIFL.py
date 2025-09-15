@@ -189,7 +189,7 @@ def draw_goals_panel(dwg, s, role, x, y):
         y_offset += 18
 
 def draw_status_panel(dwg, s, x, y):
-     """Draw current status and special conditions panel with extra metrics and warnings"""
+    """Draw current status and special conditions panel with extra metrics and warnings"""
     panel_width = 320
     panel_height = 300  # Increased height to accommodate warnings
     

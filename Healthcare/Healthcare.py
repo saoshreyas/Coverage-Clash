@@ -283,7 +283,7 @@ def request_funds(s):
         new_s.budget = clamp(s.budget + 25, 0, 200)
     
     if new_s.funded == 1:
-        add_to_next_transition("Did you know? Public health in real life USA is also suffering for lack of funding. The current rising rate of chronic diseases is attributed in part to governmental underinvestment in Public Health infrastructure.", new_s)
+        add_to_next_transition("\nDid you know? Public health in real life USA is also suffering for lack of funding. The current rising rate of chronic diseases is attributed in part to governmental underinvestment in Public Health infrastructure.", new_s)
     
     update_turn(new_s)
     return new_s
