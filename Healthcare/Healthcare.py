@@ -58,6 +58,7 @@ class State(Basic_State):
             self.bribe_choice_active = False # Flag to activate bribe options
             self.public_expansion_cap_turns_left = 0 # New variable for bribery effect
             self.last_lobbied = 0
+            self.funded = 0
             self.policymaker_bonus_turn_used_55 = False
             self.policymaker_bonus_turn_used_62 = False
             self.policymaker_bonus_turn_used_72 = False
@@ -84,6 +85,7 @@ class State(Basic_State):
             self.bribe_choice_active = old.bribe_choice_active
             self.public_expansion_cap_turns_left = old.public_expansion_cap_turns_left
             self.last_lobbied = old.last_lobbied
+            self.funded = old.funded
             self.policymaker_bonus_turn_used_55 = old.policymaker_bonus_turn_used_55
             self.policymaker_bonus_turn_used_62 = old.policymaker_bonus_turn_used_62
             self.policymaker_bonus_turn_used_72 = old.policymaker_bonus_turn_used_72
@@ -271,7 +273,7 @@ def subsidize_coverage(s):
 def request_funds(s):
     new_s = State(s)
     add_to_next_transition(int_to_name(s.whose_turn)+" requests funds from the government.", new_s)
-    
+    new_s.funded += 1
     # 30% chance of being intercepted by the insurer
     if random.random() < 0.3:
         add_to_next_transition("Funds are intercepted! The Insurance Company can now choose to act.", new_s)
@@ -279,7 +281,10 @@ def request_funds(s):
     else:
         add_to_next_transition("Request succeeds!", new_s)
         new_s.budget = clamp(s.budget + 25, 0, 200)
-        
+    
+    if new_s.funded == 1:
+        add_to_next_transition("\nDid you know? Public health in real life USA is also suffering for lack of funding. The current rising rate of chronic diseases is attributed in part to governmental underinvestment in Public Health infrastructure.", new_s)
+    
     update_turn(new_s)
     return new_s
 
@@ -544,5 +549,4 @@ def use_BRIFL_SVG():
   from  Healthcare_SVG_FOR_BRIFL import render_state
 DEBUG_VIS = True
 #</STATE_VIS>
-
 
