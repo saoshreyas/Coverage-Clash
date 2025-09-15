@@ -145,7 +145,7 @@ def draw_goals_panel(dwg, s, role, x, y):
     if role == prob.POLICY_MAKER:
         goals = [
             ("WIN CONDITION:", ""),
-            ("Access Gap < 15", f"(currently {s.access_gap_index})", SUCCESS_COLOR if s.access_gap_index < 12 else WARNING_COLOR),
+            ("Access Gap < 13", f"(currently {s.access_gap_index})", SUCCESS_COLOR if s.access_gap_index < 12 else WARNING_COLOR),
             ("", ""),
             ("AVOID LOSING:", ""),
             ("Uninsured > 17.8%", f"(currently {s.uninsured_rate:.1f}%)", WARNING_COLOR if s.uninsured_rate > 15.5 else SUCCESS_COLOR),
@@ -389,7 +389,7 @@ def draw_special_status(dwg, s, x, y):
     messages = []
     
     # Check for approaching win/lose conditions - moved position
-    if s.access_gap_index < 20 and s.access_gap_index >= 15:
+    if s.access_gap_index < 20 and s.access_gap_index >= 12:
         messages.append(("Policy Maker close to victory!", SUCCESS_COLOR))
     if s.profit > 80 and s.profit <= 85:
         messages.append(("Insurance Company close to victory!", WARNING_COLOR))
