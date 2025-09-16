@@ -18,24 +18,21 @@ Coverage Clash simulates the competing forces in U.S. healthcare access between 
 
 Players take turns executing actions that affect seven key metrics: Uninsured Rate, Public Health Index, Access Gap Index, Insurance Profit, Public Trust Meter, Insurance Influence, and Policy Maker Budget. Success requires understanding how actions create cascading effects across all metrics while managing both immediate needs and long-term strategic positioning.
 
-Hidden Game Mechanics (cant give away too much but just a little hint)
+Hidden Game Mechanics (can't give away too much but just a little hint)
 
-Policy Makers have the ability to acess bonus turns, but its not up to them but their consituents
+Policy Makers have the ability to acess bonus turns, but it's not up to them but their consituents
 
-Policy Makers need to watch their money carefully, as if they run low insurance companies can take advantage of them
+Insurance Companies thrive off of public distrust of the government and the public's trust in them
 
-Insurance Companies thrive off of public distrust of the government and the publics trust in them
-
-Remember, every action has a reaction and there are always more than one way to win this game!
-
+Remember, every action has a reaction and there's always more than one way to win this game!
 
 Real-World Context
 The game incorporates several real-world healthcare policy dynamics:
-- Lobbying Power: Insurance companies' ability to influence policy through lobbying
+- Lobbying Power: Insurance companies' ability to influence policy through lobbying 
 - Public Opinion: How trust affects political viability of health policies  
 - Budget Constraints: Government funding limitations for health programs
 - Market Dynamics: How insurance practices affect access and outcomes
-- Interception/Corruption: How special interests can redirect public resources
+- Corruption: How special interests can redirect public resources
 '''
 #</METADATA>
 
@@ -81,6 +78,7 @@ class State(Basic_State):
             self.public_expansion_cap_turns_left = 0 # New variable for bribery effect
             self.last_lobbied = 0
             self.funded = 0
+            self.intercepted = 0
             self.policymaker_bonus_turn_used_55 = False
             self.policymaker_bonus_turn_used_62 = False
             self.policymaker_bonus_turn_used_72 = False
@@ -108,6 +106,7 @@ class State(Basic_State):
             self.public_expansion_cap_turns_left = old.public_expansion_cap_turns_left
             self.last_lobbied = old.last_lobbied
             self.funded = old.funded
+            self.intercepted = old.intercepted
             self.policymaker_bonus_turn_used_55 = old.policymaker_bonus_turn_used_55
             self.policymaker_bonus_turn_used_62 = old.policymaker_bonus_turn_used_62
             self.policymaker_bonus_turn_used_72 = old.policymaker_bonus_turn_used_72
@@ -308,9 +307,14 @@ def request_funds(s):
     new_s = State(s)
     add_to_next_transition(int_to_name(s.whose_turn)+" requests funds from the government.", new_s)
     new_s.funded += 1
+    
     # 30% chance of being intercepted by the insurer
     if random.random() < 0.3:
-        add_to_next_transition("Funds are intercepted! The Insurance Company can now choose to act.", new_s)
+        new_s.intercepted += 1
+        if new_s.intercepted == 1:
+          add_to_next_transition("Funds are intercepted! The Insurance Company can now choose to act. Did you know? Corruption can causes funds to be used in damaging ways.", new_s)
+        else:
+          add_to_next_transition("Funds are intercepted! The Insurance Company can now choose to act.", new_s)
         new_s.bribe_choice_active = True
     else:
         add_to_next_transition("Request succeeds!", new_s)
@@ -629,4 +633,3 @@ def use_BRIFL_SVG():
   from  Healthcare_SVG_FOR_BRIFL import render_state
 DEBUG_VIS = True
 #</STATE_VIS>
-
