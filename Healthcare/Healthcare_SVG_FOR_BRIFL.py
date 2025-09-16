@@ -162,7 +162,7 @@ def draw_goals_panel(dwg, s, role, x, y):
             ("(Policymaker loses)", f"(currently {s.access_gap_index})", SUCCESS_COLOR if s.access_gap_index > 40 else WARNING_COLOR),
             ("", ""),
             ("AVOID LOSING:", ""),
-            ("Uninsured > 14%", f"(currently {s.uninsured_rate:.1f}%)", WARNING_COLOR if s.uninsured_rate > 12 else SUCCESS_COLOR),
+            ("Uninsured > 17.8%", f"(currently {s.uninsured_rate:.1f}%)", WARNING_COLOR if s.uninsured_rate > 15.5 else SUCCESS_COLOR),
             ("Public Health < 30", f"(currently {s.public_health_index})", WARNING_COLOR if s.public_health_index < 40 else SUCCESS_COLOR)
         ]
     else:
@@ -389,7 +389,7 @@ def draw_progress_bars(dwg, s, x, y):
         elif "Insurer Influence" in label or "Public Trust" in label:
             display_value = f"{value:}%"
         elif "Budget Level" in label:
-            display_value = f"${s.profit}B"
+            display_value = f"${s.budget}B"
         else:
             display_value = f"{value:.0f}"
             
