@@ -98,8 +98,7 @@ def render_state(s, roles=None):
         # Draw progress bars with extra metrics
         draw_progress_bars(dwg, s, 35, 350)
         
-        # Special status messages moved to not block progress bars
-        draw_special_status(dwg, s, 680, 350)
+        
         
         if role == prob.POLICY_MAKER:
             r_insert(dwg)
@@ -396,33 +395,7 @@ def draw_progress_bars(dwg, s, x, y):
         
         y_offset += bar_spacing
 
-def draw_special_status(dwg, s, x, y):
-    """Draw special status messages - moved to not block progress bars"""
-    messages = []
-    
-    # Check for approaching win/lose conditions - moved position
-    if s.access_gap_index < 20 and s.access_gap_index > 13:
-        messages.append(("Policy Maker close to victory!", SUCCESS_COLOR))
-    if s.profit > 80 and s.profit <= 85:
-        messages.append(("Insurance Company close to victory!", WARNING_COLOR))
-    if s.uninsured_rate > 15.5:
-        messages.append(("Approaching failure condition!", WARNING_COLOR))
-    if s.public_health_index < 35:
-        messages.append(("Health crisis approaching!", WARNING_COLOR))
-    
-    if messages:
-        dwg.add(dwg.text("Alerts", insert=(x, y - 10),
-                        font_size=MEDIUM_FS,
-                        font_weight="bold",
-                        fill="rgb(51, 51, 51)"))
-    
-    y_offset = 10
-    for message, color in messages:
-        dwg.add(dwg.text(f"⚡ {message}", insert=(x, y + y_offset),
-                        font_size=SMALL_FS,
-                        font_weight="bold",
-                        fill=color))
-        y_offset += 20
+
 
 def draw_game_over(dwg, s):
     """Draw game over screen"""
