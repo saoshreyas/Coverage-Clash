@@ -8,7 +8,7 @@ Works with Web_SOLUZION5 system.
 SOLUZION_VERSION = "5.0"
 PROBLEM_NAME = "Coverage Clash"
 PROBLEM_VERSION = "1.0"
-PROBLEM_AUTHORS = ['Shreyas', 'Lauren', 'Yaxin', 'Jennifer']
+PROBLEM_AUTHORS = ['Shreyas', 'Lauren', 'Jennifer']
 PROBLEM_CREATION_DATE = "9-September-2025"
 PROBLEM_DESC=\
  '''# Coverage Clash: How to Play
@@ -631,5 +631,5 @@ render_state = None
 def use_BRIFL_SVG():
   global render_state
   from  Healthcare_SVG_FOR_BRIFL import render_state
-DEBUG_VIS = True
+DEBUG_VIS = False
 #</STATE_VIS>
