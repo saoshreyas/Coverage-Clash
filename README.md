@@ -1,4 +1,4 @@
-Coverage Clash: How to Play           ![logo](Coverage Clash.jpg)
+Coverage Clash: How to Play           ![logo](CoverageClash.jpg)
 
 Game Overview
 Coverage Clash simulates the competing forces in U.S. healthcare access between Policy Makers (who aim to improve healthcare access) and Insurance Companies (who aim to maximize profit). This turn-based strategy game models real-world healthcare policy dynamics with multiple interconnected metrics that players must carefully manage.
