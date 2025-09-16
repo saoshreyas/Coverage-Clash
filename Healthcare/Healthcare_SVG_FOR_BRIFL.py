@@ -1,6 +1,7 @@
 # Author: Generated for Coverage Clash
 # Purpose: Provide the player's "visualizations" of the Coverage Clash healthcare game
 # in the web browser using SVG graphics.
+# Based on OCCLUEdo_SVG_VIS_FOR_BRIFL.py structure
 
 import svgwrite
 import Healthcare as prob  # Import the main game module
