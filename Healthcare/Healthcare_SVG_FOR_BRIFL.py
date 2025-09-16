@@ -386,6 +386,10 @@ def draw_progress_bars(dwg, s, x, y):
             display_value = s.access_gap_index
         elif "Coverage Rate" in label:
             display_value = f"{100 - s.uninsured_rate:.1f}%"
+        elif "Insurer Influence" in label or "Public Trust" in label:
+            display_value = f"{value:}%"
+        elif "Budget Level" in label:
+            display_value = f"${s.profit}B"
         else:
             display_value = f"{value:.0f}"
             
@@ -534,4 +538,3 @@ def i_insert(dwg):
     insert_card(dwg,("i",3),800,350)
     insert_card(dwg,("i",4),620,80)
     insert_card(dwg,("i",5),800,80)
-
