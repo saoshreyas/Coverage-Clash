@@ -1,14 +1,13 @@
 # Author: Generated for Coverage Clash
 # Purpose: Provide the player's "visualizations" of the Coverage Clash healthcare game
 # in the web browser using SVG graphics.
-# Based on OCCLUEdo_SVG_VIS_FOR_BRIFL.py structure
 
 import svgwrite
 import Healthcare as prob  # Import the main game module
 
 DEBUG = True
 W = 1000  # Width of visualization region
-H = 600   # Increased height to accommodate larger cards
+H = 620  # Increased height to accommodate larger cards
 PANEL_WIDTH = W // 3
 PANEL_HEIGHT = H // 2
 
@@ -462,7 +461,7 @@ def draw_game_over(dwg, s):
                         text_anchor="middle",
                         font_size=MEDIUM_FS,
                         font_weight="bold",
-                        fill=SUCCESS_COLOR))
+                        fill=SUCCESS_COLOR)) 
 
 # Utility functions for color coding
 def get_health_color(value, threshold, higher_is_worse):
@@ -546,18 +545,19 @@ def insert_card(dwg, card, x, y):
 
 
 def r_insert(dwg):
-    insert_card(dwg,("r",0),320,350)
-    insert_card(dwg,("r",1),480,350)
-    insert_card(dwg,("r",2),650,350)
+    insert_card(dwg,("r",0),260,350)
+    insert_card(dwg,("r",1),440,350)
+    insert_card(dwg,("r",2),620,350)
     insert_card(dwg,("r",3),800,350)
-    insert_card(dwg,("r",4),650,80)
+    insert_card(dwg,("r",4),620,80)
     insert_card(dwg,("r",5),800,80)
 
 
 def i_insert(dwg):
-    insert_card(dwg,("i",0),320,350)
-    insert_card(dwg,("i",1),480,350)
-    insert_card(dwg,("i",2),650,350)
+    insert_card(dwg,("i",0),260,350)
+    insert_card(dwg,("i",1),440,350)
+    insert_card(dwg,("i",2),620,350)
     insert_card(dwg,("i",3),800,350)
-    insert_card(dwg,("i",4),650,100)
-    insert_card(dwg,("i",5),800,100)
+    insert_card(dwg,("i",4),620,80)
+    insert_card(dwg,("i",5),800,80)
+
