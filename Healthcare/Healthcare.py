@@ -11,10 +11,32 @@ PROBLEM_VERSION = "1.0"
 PROBLEM_AUTHORS = ['Shreyas', 'Lauren', 'Yaxin', 'Jennifer']
 PROBLEM_CREATION_DATE = "9-September-2025"
 PROBLEM_DESC=\
- '''Coverage Clash simulates competing forces in U.S. healthcare access.
- Policy Makers aim to reduce the healthcare access gap, while Insurance Companies
- aim to maximize profit. Features full state tracking including budgets, public
- opinion, influence meters, and comprehensive operator sets with bribery mechanics.'''
+ '''# Coverage Clash: How to Play
+
+## Game Overview
+Coverage Clash simulates the competing forces in U.S. healthcare access between Policy Makers (who aim to improve healthcare access) and Insurance Companies (who aim to maximize profit). This turn-based strategy game models real-world healthcare policy dynamics with multiple interconnected metrics that players must carefully manage.
+
+Players take turns executing actions that affect seven key metrics: Uninsured Rate, Public Health Index, Access Gap Index, Insurance Profit, Public Trust Meter, Insurance Influence, and Policy Maker Budget. Success requires understanding how actions create cascading effects across all metrics while managing both immediate needs and long-term strategic positioning.
+
+Hidden Game Mechanics (cant give away too much but just a little hint)
+
+Policy Makers have the ability to acess bonus turns, but its not up to them but their consituents
+
+Policy Makers need to watch their money carefully, as if they run low insurance companies can take advantage of them
+
+Insurance Companies thrive off of public distrust of the government and the publics trust in them
+
+Remember, every action has a reaction and there are always more than one way to win this game!
+
+
+Real-World Context
+The game incorporates several real-world healthcare policy dynamics:
+- Lobbying Power: Insurance companies' ability to influence policy through lobbying
+- Public Opinion: How trust affects political viability of health policies  
+- Budget Constraints: Government funding limitations for health programs
+- Market Dynamics: How insurance practices affect access and outcomes
+- Interception/Corruption: How special interests can redirect public resources
+'''
 #</METADATA>
 
 #<COMMON_DATA>
